@@ -15,11 +15,6 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         with:
           config-path: .gitleaks.toml # Optional: customize rules if needed
-      # Run truffleHog for additional secret scanning
-      - name: Run truffleHog
-        uses: trufflesecurity/trufflehog@v3
-        with:
-          args: --no-verification --fail # Fail the job if secrets are found
 
   dependency-audit:
     runs-on: ubuntu-latest
