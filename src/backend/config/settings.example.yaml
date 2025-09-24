@@ -1,0 +1,13 @@
+app:
+  env: ${APP_ENV}
+  base_url: ${BASE_URL}
+db:
+  url: ${DB_URL}
+logging:
+  level: INFO
+scheduling:
+  osint_poll_minutes: 60
+rate_limits:
+  osint:
+    shodan: 60
+    censys: 60
