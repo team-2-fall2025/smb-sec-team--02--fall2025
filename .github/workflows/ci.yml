@@ -33,7 +33,7 @@ jobs:
           pip install pip-audit
       # Run pip-audit for Python dependency audit
       - name: Run pip-audit
-        run: pip-audit
+        run: pip-audit -r requirements.txt
         working-directory: src/backend
       # Set up Node.js for npm audit
       - name: Set up Node.js
