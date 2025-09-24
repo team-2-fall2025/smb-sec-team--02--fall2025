@@ -1,0 +1,53 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  secret-scanning:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code with full commit history for secret scanning
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for gitleaks to scan commit history
+      # Run gitleaks for secret scanning
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          config-path: .gitleaks.toml # Optional: customize rules if needed
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+      # Set up Python for pip-audit
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      # Install pip-audit
+      - name: Install pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+      # Run pip-audit for Python dependency audit
+      - name: Run pip-audit
+        run: pip-audit -r requirements.txt
+        working-directory: src/backend
+      # Set up Node.js for npm audit
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # Install Node.js dependencies
+      - name: Install Node.js dependencies
+        run: npm install
+        working-directory: src/frontend
+      # Run npm audit for Node.js dependency audit
+      - name: Run npm audit
+        run: npm audit
+        working-directory: src/frontend
