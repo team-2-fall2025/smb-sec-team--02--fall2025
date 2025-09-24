@@ -13,6 +13,9 @@ jobs:
       # Run gitleaks for secret scanning
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
         with:
           config-path: .gitleaks.toml # Optional: customize rules if needed
 
