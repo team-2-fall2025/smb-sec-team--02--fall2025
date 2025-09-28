@@ -1,7 +1,3 @@
----
-title: Team Contract --- Group
----
-
 # 1) Roles
 
 We have 4 members. Two are for the backend development, two are for the
