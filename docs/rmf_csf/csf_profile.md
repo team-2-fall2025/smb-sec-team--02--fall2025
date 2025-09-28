@@ -1,4 +1,4 @@
-# SMB CSF Profile --- Dr. Lin's Dental Clinic (Draft)
+# SMB CSF Profile --- Dr. Lin's Dental Clinic (Week 1 Submission)
 
 ## Org Snapshot
 
@@ -35,49 +35,13 @@
 
 ## Current vs Target Profile (High‑Level)
 
-  -----------------------------------------------------------------------
-  Function          Current (Key      Target (This      Priority
-                    Gaps)             Semester)         
-  ----------------- ----------------- ----------------- -----------------
-  **Identify**      Informal          Living asset      **P1**
-                    inventory; no PHI list; PHI data    
-                    data map; vendor  flow diagram;     
-                    risk ad‑hoc       third‑party risk  
-                                      checklist per     
-                                      vendor            
-
-  **Protect**       MFA not enforced  Enforce MFA;      **P1**
-                    on all portals;   harden Wi‑Fi      
-                    weak Wi‑Fi        (WPA3, guest      
-                    config;           VLAN); monthly    
-                    inconsistent      KEV‑driven        
-                    patching; shared  patching; remove  
-                    local admin       local admin;      
-                                      password policy   
-
-  **Detect**        Logs siloed in    Route auth/sys    **P1**
-                    apps; no          logs; rules for   
-                    alerting; no      brute‑force,      
-                    baseline          geo‑anomaly;      
-                                      weekly review;    
-                                      KEV watch         
-
-  **Respond**       No documented     1‑page runbooks   **P2**
-                    playbooks;        (phish,           
-                    unclear roles     ransomware, lost  
-                                      laptop); comms    
-                                      tree; evidence    
-                                      checklist         
-
-  **Recover**       Backups exist but Quarterly restore **P1**
-                    untested; unknown tests; defined    
-                    RPO/RTO           RPO=24h, RTO=8h;  
-                                      recovery          
-                                      checklist         
-  -----------------------------------------------------------------------
-
-> **Implementation Tier (aspiration):** Tier 1 (Partial) → **Tier 2
-> (Risk‑Informed)** by semester end
+| Function   | Current                                          | Target                                                   | Priority |
+|------------|---------------------------------------------------------------|------------------------------------------------------------------------------|----------|
+| **Identify** | Informal inventory; no PHI data map; vendor risk ad-hoc       | Living asset list; PHI data flow diagram; third-party risk checklist per vendor | **P1**   |
+| **Protect**  | MFA not enforced on all portals; weak Wi-Fi config; inconsistent patching; shared local admin | Enforce MFA; harden Wi-Fi (WPA3, guest VLAN); monthly KEV-driven patching; remove local admin; password policy | **P1**   |
+| **Detect**   | Logs siloed in apps; no alerting; no baseline                 | Route auth/sys logs; rules for brute-force, geo-anomaly; weekly review; KEV watch | **P1**   |
+| **Respond**  | No documented playbooks; unclear roles                       | 1-page runbooks (phish, ransomware, lost laptop); comms tree; evidence checklist | **P2**   |
+| **Recover**  | Backups exist but untested; unknown RPO/RTO                   | Quarterly restore tests; defined RPO=24h, RTO=8h; recovery checklist             | **P1**   |
 
 ## OSINT / External Feeds (≥3)
 
@@ -93,10 +57,7 @@
 -   **IPInfoDB:** Secondary IP intel source (geo/host data) to
     corroborate enrichment and catch data gaps.
 
-> **Planned automations:** daily KEV ingest, weekly NVD diffs, on-demand
-> IOC lookups from OTX; IP enrichers called inside playbooks/detections.
-
-## Top Risks (Week‑1 Hypotheses)
+## Top Risks
 
 -   **Phishing → credential theft → SSO/EHR abuse** (Initial Access →
     Credential Access → Impact)
@@ -105,7 +66,7 @@
 -   **Secret leakage in repos or workstation** → cloud portal misuse
     (Discovery/Exfiltration)
 
-## Near‑Term Controls & Tasks (This Semester)
+## Near‑Term Controls & Tasks
 
 -   **Access:** Enforce MFA on EHR/portal/email; disable shared
     accounts; least privilege
@@ -131,10 +92,3 @@
     (documented)
 -   Detections generate a test alert (screenshot/log snippet) and weekly
     review notes
-
-## Traceability to Repo
-
--   **Location:** `docs/rmf_csf/csf_profile.md`
--   **References:** `docs/runbooks/` (RS), `docs/diagrams/` (ID),
-    `ops/patching/` (PR), `ops/logging/` (DE), `ops/backup-restore/`
-    (RC)
