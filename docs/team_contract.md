@@ -49,7 +49,7 @@ members.
 -   \- Sev-2 (build red/merge-blocking): Fix or revert within 4h; pair
     as needed.
 
--   \- Sev-3 (individual blocker): Ask in #help; if no response in 12h,
+-   \- Sev-3 (individual blocker): Ask in #general; if no response in 12h,
     TL assigns help.
 
 -   Escalation ladder: Assignee → Backup owner → Team Lead → Instructor
