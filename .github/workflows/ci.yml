@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13.1'
       # Install pip-audit
       - name: Install pip-audit
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.13'
       # Install Node.js dependencies
       - name: Install Node.js dependencies
         run: npm install
@@ -60,7 +60,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13.1'
       # Install Python dependencies, ruff, black, and pytest
       - name: Install Python dependencies and tools
         run: |
@@ -75,7 +75,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.13'
       # Install Node.js dependencies and eslint
       - name: Install Node.js dependencies and eslint
         run: npm install eslint --save-dev
