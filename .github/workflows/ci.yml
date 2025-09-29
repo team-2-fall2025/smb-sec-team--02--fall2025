@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13.1'
       # Install pip-audit
       - name: Install pip-audit
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.13'
       # Install Node.js dependencies
       - name: Install Node.js dependencies
         run: npm install
@@ -50,4 +50,37 @@ jobs:
       # Run npm audit for Node.js dependency audit
       - name: Run npm audit
         run: npm audit
+        working-directory: src/frontend
+  lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+      # Set up Python for backend linting and testing
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+      # Install Python dependencies, ruff, black, and pytest
+      - name: Install Python dependencies and tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff
+        working-directory: src/backend
+      # Run ruff for backend linting
+      - name: Run ruff
+        run: ruff check .
+        working-directory: src/backend
+      # Set up Node.js for frontend linting and TypeScript tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13'
+      # Install Node.js dependencies and eslint
+      - name: Install Node.js dependencies and eslint
+        run: npm install eslint --save-dev
+        working-directory: src/frontend
+      # Run eslint for frontend linting
+      - name: Run eslint
+        run: npx eslint .
         working-directory: src/frontend

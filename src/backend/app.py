@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from database import db
 import os
 
 app = FastAPI()
@@ -9,10 +10,6 @@ def health():
         "status": "ok",
         "env": os.getenv("APP_ENV", "dev")
     }
-from fastapi import FastAPI
-from src.backend.database import db
-
-app = FastAPI()
 
 @app.get("/")
 async def root():
