@@ -1,19 +1,3 @@
-** AI-Augmented Cyber Risk & Threat Intelligence Framework for SMBs **
-
-a web-based, agentic-AI platform SMBs can configure to (1) identify assets, (2) ingest OSINT + logs, (3) score & prioritize risk, and (4) automate security workflows mapped to NIST CSF 2.0
-
-** Team Members**
-
--   Ramzey Alissa: Team Lead / risk & compliance
--   Weikang Ding: risk & compliance
--   Binhao Ma: backend / frontend
--   Immanuel Olaoye: backend / frontend
-
-** Getting Started ** 
-
-*1) Backend*
-
-
 # AI-Augmented Cyber Risk & Threat Intelligence Framework for SMBs
 
 ## Project One-Liner
