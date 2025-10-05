@@ -95,6 +95,11 @@ To initialize the database using the provided CSV datasets, run the following co
 4. Use your browser or Postman to access:
    - Insert test data → `http://127.0.0.1:8000/api/osint/test`  
    - Check statistics → `http://127.0.0.1:8083/api/stats`
+   - Indentify → `http://127.0.0.1:8000/api/identify/ping`
+   - Protect → `http://127.0.0.1:8000/api/protect/ping`
+   - Detect → `http://127.0.0.1:8000/api/detect/ping`
+   - Respond → `http://127.0.0.1:8000/api/respond/ping`
+   - Recover → `http://127.0.0.1:8000/api/recover/ping`
 
 ---
 
