@@ -82,12 +82,12 @@ To initialize the database using the provided CSV datasets, run the following co
 |-----------|---------|----------|
 | Insert Data Test | `POST` | [http://127.0.0.1:8000/api/osint/test](http://127.0.0.1:8000/api/osint/test) |
 | Statistics Test | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats) |
-| Indentify | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/identify/ping)) |
-| Protect | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/protect/ping)) |
-| Detect | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/detect/ping)) |
-| Respond | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/respond/ping)) |
-| Recover | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/recover/ping)) |
-| Govern | `GET` | [http://127.0.0.1:8083/api/stats](http://127.0.0.1:8083/api/stats](http://127.0.0.1:8000/api/govern/ping)) |
+| Indentify | `GET` | [http://127.0.0.1:8083/api/identify/ping](http://127.0.0.1:8000/api/identify/ping) |
+| Protect | `GET` | [http://127.0.0.1:8083/api/protect/ping](http://127.0.0.1:8000/api/protect/ping) |
+| Detect | `GET` | [http://127.0.0.1:8083/api/detect/ping](http://127.0.0.1:8000/api/detect/ping) |
+| Respond | `GET` | [http://127.0.0.1:8083/api/respond/ping](http://127.0.0.1:8000/api/respond/ping) |
+| Recover | `GET` | [http://127.0.0.1:8083/api/recover/ping](http://127.0.0.1:8000/api/recover/ping) |
+| Govern | `GET` | [http://127.0.0.1:8083/api/govern/ping](http://127.0.0.1:8000/api/govern/ping) |
 
 
 > ⚠️ **Before testing**, make sure the test data has been successfully imported into MongoDB.
