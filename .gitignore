@@ -12,6 +12,6 @@ build/
 
 # Project
 logs/
-src/backend/db/data/private/
+data/private/
 *.sqlite
 .DS_Store

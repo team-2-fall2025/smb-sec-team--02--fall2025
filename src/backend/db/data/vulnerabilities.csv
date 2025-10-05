@@ -1,7 +1,0 @@
-org,asset_name,cve_id,cvss_base,severity_label,published_date,description
-AcmeRetail,cms-app,CVE-2021-44228,10.0,Critical,2021-12-10,Log4Shell risk in legacy plugin
-AcmeRetail,web-01,CVE-2023-25690,7.5,High,2023-03-07,Apache HTTP Request Smuggling
-AcmeRetail,vpn-gw,CVE-2019-19781,9.8,Critical,2019-12-17,Citrix ADC path traversal (example)
-MediClinic,portal-app,CVE-2024-3094,9.8,Critical,2024-03-29,xz/liblzma supply-chain backdoor risk
-MediClinic,emr-db,CVE-2020-1472,10.0,Critical,2020-08-11,ZeroLogon exposure risk
-MediClinic,vpn-gw,CVE-2023-27997,9.2,Critical,2023-06-12,Fortinet SSL-VPN overflow (example)
