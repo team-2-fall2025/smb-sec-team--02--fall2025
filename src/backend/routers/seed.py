@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-import asyncio
 from db.seed_from_csv import main as seed_main
 
 router = APIRouter()
