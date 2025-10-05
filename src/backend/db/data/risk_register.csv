@@ -1,0 +1,6 @@
+Asset,Threat,Vulnerability,Likelihood,Impact,Score,Owner,Treatment,Due,Status,Notes
+web-01,Credential stuffing,Weak rate limiting,3,4,12,web,Mitigate,2025-10-30,Open,Add WAF rules + 2FA
+db-01,Data exfiltration,Exposed DB service,4,5,20,data,Mitigate,2025-10-25,Open,"Restrict network, enable TLS"
+vpn-gw,Brute force,Abuse reports on IP,3,4,12,netops,Mitigate,2025-10-22,Open,"Enable MFA, lockout policy"
+portal-app,Injection,Legacy plugin risk (Log4J-like),2,5,10,app,Accept,2025-11-15,In Review,Compensating controls
+emr-db,Privilege escalation,Weak domain hardening,3,5,15,data,Mitigate,2025-11-01,Open,Apply hardened baseline
