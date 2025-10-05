@@ -1,0 +1,90 @@
+[{
+  "_id": {
+    "$oid": "68e1f4bb09e30eb13eaf0319"
+  },
+  "Asset": "web-01",
+  "Threat": "Credential stuffing",
+  "Vulnerability": "Weak rate limiting",
+  "Likelihood": 3,
+  "Impact": 4,
+  "Score": 12,
+  "Owner": "web",
+  "Treatment": "Mitigate",
+  "Due": {
+    "$date": "2025-10-30T00:00:00.000Z"
+  },
+  "Status": "Open",
+  "Notes": "Add WAF rules + 2FA"
+},
+{
+  "_id": {
+    "$oid": "68e1f4bb09e30eb13eaf031a"
+  },
+  "Asset": "db-01",
+  "Threat": "Data exfiltration",
+  "Vulnerability": "Exposed DB service",
+  "Likelihood": 4,
+  "Impact": 5,
+  "Score": 20,
+  "Owner": "data",
+  "Treatment": "Mitigate",
+  "Due": {
+    "$date": "2025-10-25T00:00:00.000Z"
+  },
+  "Status": "Open",
+  "Notes": "Restrict network, enable TLS"
+},
+{
+  "_id": {
+    "$oid": "68e1f4bb09e30eb13eaf031b"
+  },
+  "Asset": "vpn-gw",
+  "Threat": "Brute force",
+  "Vulnerability": "Abuse reports on IP",
+  "Likelihood": 3,
+  "Impact": 4,
+  "Score": 12,
+  "Owner": "netops",
+  "Treatment": "Mitigate",
+  "Due": {
+    "$date": "2025-10-22T00:00:00.000Z"
+  },
+  "Status": "Open",
+  "Notes": "Enable MFA, lockout policy"
+},
+{
+  "_id": {
+    "$oid": "68e1f4bb09e30eb13eaf031c"
+  },
+  "Asset": "portal-app",
+  "Threat": "Injection",
+  "Vulnerability": "Legacy plugin risk (Log4J-like)",
+  "Likelihood": 2,
+  "Impact": 5,
+  "Score": 10,
+  "Owner": "app",
+  "Treatment": "Accept",
+  "Due": {
+    "$date": "2025-11-15T00:00:00.000Z"
+  },
+  "Status": "In Review",
+  "Notes": "Compensating controls"
+},
+{
+  "_id": {
+    "$oid": "68e1f4bb09e30eb13eaf031d"
+  },
+  "Asset": "emr-db",
+  "Threat": "Privilege escalation",
+  "Vulnerability": "Weak domain hardening",
+  "Likelihood": 3,
+  "Impact": 5,
+  "Score": 15,
+  "Owner": "data",
+  "Treatment": "Mitigate",
+  "Due": {
+    "$date": "2025-11-01T00:00:00.000Z"
+  },
+  "Status": "Open",
+  "Notes": "Apply hardened baseline"
+}]

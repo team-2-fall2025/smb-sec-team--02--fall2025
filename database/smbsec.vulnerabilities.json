@@ -1,0 +1,84 @@
+[{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0312"
+  },
+  "org": "AcmeRetail",
+  "asset_name": "cms-app",
+  "cve_id": "CVE-2021-44228",
+  "cvss_base": 10,
+  "severity_label": "Critical",
+  "published_date": {
+    "$date": "2021-12-10T00:00:00.000Z"
+  },
+  "description": "Log4Shell risk in legacy plugin"
+},
+{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0313"
+  },
+  "org": "AcmeRetail",
+  "asset_name": "web-01",
+  "cve_id": "CVE-2023-25690",
+  "cvss_base": 7.5,
+  "severity_label": "High",
+  "published_date": {
+    "$date": "2023-03-07T00:00:00.000Z"
+  },
+  "description": "Apache HTTP Request Smuggling"
+},
+{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0314"
+  },
+  "org": "AcmeRetail",
+  "asset_name": "vpn-gw",
+  "cve_id": "CVE-2019-19781",
+  "cvss_base": 9.8,
+  "severity_label": "Critical",
+  "published_date": {
+    "$date": "2019-12-17T00:00:00.000Z"
+  },
+  "description": "Citrix ADC path traversal (example)"
+},
+{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0315"
+  },
+  "org": "MediClinic",
+  "asset_name": "portal-app",
+  "cve_id": "CVE-2024-3094",
+  "cvss_base": 9.8,
+  "severity_label": "Critical",
+  "published_date": {
+    "$date": "2024-03-29T00:00:00.000Z"
+  },
+  "description": "xz/liblzma supply-chain backdoor risk"
+},
+{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0316"
+  },
+  "org": "MediClinic",
+  "asset_name": "emr-db",
+  "cve_id": "CVE-2020-1472",
+  "cvss_base": 10,
+  "severity_label": "Critical",
+  "published_date": {
+    "$date": "2020-08-11T00:00:00.000Z"
+  },
+  "description": "ZeroLogon exposure risk"
+},
+{
+  "_id": {
+    "$oid": "68e1f4a109e30eb13eaf0317"
+  },
+  "org": "MediClinic",
+  "asset_name": "vpn-gw",
+  "cve_id": "CVE-2023-27997",
+  "cvss_base": 9.2,
+  "severity_label": "Critical",
+  "published_date": {
+    "$date": "2023-06-12T00:00:00.000Z"
+  },
+  "description": "Fortinet SSL-VPN overflow (example)"
+}]
