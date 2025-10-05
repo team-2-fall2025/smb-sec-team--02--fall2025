@@ -103,6 +103,3 @@ To initialize the database using the provided CSV datasets, run the following co
 - If you change the database name or port, make sure to update your project configuration file (such as `.env` or `config.js`).
 
 ---
-
-
-

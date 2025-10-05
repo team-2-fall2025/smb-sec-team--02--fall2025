@@ -5,6 +5,7 @@
   "dependencies": {
     "@primer/css": "17.0.1",
     "python": "^0.0.4",
+    "python-dotenv": "^10.1.1",
     "python3": "^0.0.1"
   },
   "license": "MIT"

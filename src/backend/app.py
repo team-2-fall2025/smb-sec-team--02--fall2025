@@ -1,33 +1,15 @@
 from fastapi import FastAPI
 from src.backend.routers import stats, osint, seed
 
+
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
-
-@app.get("/version")
-def version():
-    return {"version": "Week2-Skeleton"}
-
-# 注册路由
-app.include_router(stats.router, prefix="/api")
-app.include_router(osint.router, prefix="/api")
-app.include_router(seed.router, prefix="/api")
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("src.backend.app:app", host="127.0.0.1", port=8000, reload=True)
-
-
-
-
-
-
-
-
+    return {
+        "status": "ok",
+        "env": os.getenv("APP_ENV", "dev")
+    }
 
 
 
