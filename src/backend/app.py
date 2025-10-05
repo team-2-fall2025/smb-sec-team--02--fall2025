@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.backend.routers import stats, osint
+from src.backend.routers import stats, osint, seed
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
@@ -14,6 +14,8 @@ def version():
 # 注册路由
 app.include_router(stats.router, prefix="/api")
 app.include_router(osint.router, prefix="/api")
+app.include_router(seed.router, prefix="/api")
+
 
 if __name__ == "__main__":
     import uvicorn

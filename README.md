@@ -55,12 +55,6 @@ Environment variables are required for MongoDB connections, API keys, and config
 
 ---
 
-## 📁 Test Data Files
-The test data files are located in the **`/database`** folder in the project root directory.  
-These files contain `.json` data used to initialize the database for testing purposes.
-
----
-
 ## ⚙️ Database Setup and Data Import Steps
 
 1. **Ensure MongoDB Service is Running**  
@@ -70,19 +64,17 @@ These files contain `.json` data used to initialize the database for testing pur
      ```
    - The default listening port is `27017`.
 
-2. **Open MongoDB Compass**  
-   - Connect to your local MongoDB instance using the following connection string:  
-     ```
-     mongodb://localhost:27017
-     ```
-   - Once connected, create or select a database (for example: `osint_db`).
+2. ### 🧩 Database Seeding from CSV
 
-3. **Import Test Data**  
-   - In MongoDB Compass, open the desired collection.  
-   - Click **“Import Data”** → select **JSON file** → choose the `.json` file from the `/database` folder.  
-   - After importing, verify that the records appear correctly in the collection.
+To initialize the database using the provided CSV datasets, run the following command:
 
----
+
+| Function                | Method | Test URL |
+|-------------------------|---------|----------|
+| Initialize the database | `GET` | http://127.0.0.1:8000/api/db/seed |
+
+
+
 
 ## 🧪 API Test Endpoints
 
@@ -98,8 +90,8 @@ These files contain `.json` data used to initialize the database for testing pur
 ## ✅ Example Testing Workflow
 
 1. Start the MongoDB service.  
-2. Import test `.json` files using MongoDB Compass.  
-3. Run your local project server (for example, using `python manage.py runserver` or `npm start`).  
+2. Run code.
+3. Initialize the database http://127.0.0.1:8000/api/db/seed.  
 4. Use your browser or Postman to access:
    - Insert test data → `http://127.0.0.1:8000/api/osint/test`  
    - Check statistics → `http://127.0.0.1:8083/api/stats`

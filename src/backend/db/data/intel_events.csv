@@ -1,0 +1,11 @@
+source,indicator,indicator_type,severity,summary,created_at
+shodan,203.0.113.10,ip,3,Open port 80/443; default title,2025-10-02T12:00:00Z
+otx,web01.acmeretail.local,hostname,2,Pulse mentions suspicious scanning,2025-10-03T12:00:00Z
+abuseipdb,203.0.113.50,ip,4,Abuse reports for VPN gateway IP,2025-10-05T12:00:00Z
+censys,cms.acmeretail.local,hostname,2,Outdated TLS configuration,2025-09-29T12:00:00Z
+shodan,198.51.100.25,ip,5,DB service exposed; banner reveals version,2025-10-06T12:00:00Z
+otx,portal.mediclinic.local,hostname,3,Credential stuffing attempts,2025-10-01T12:00:00Z
+greynoise,198.51.100.40,ip,3,VPN brute-force noise source,2025-10-07T12:00:00Z
+abuseipdb,10.20.30.40,ip,1,Internal IP in sample list,2025-09-30T12:00:00Z
+virustotal,emrdb.mediclinic.local,hostname,4,Passive DNS anomalies,2025-10-04T12:00:00Z
+otx,backup.mediclinic.local,hostname,2,Backup exposure patterns,2025-09-28T12:00:00Z
