@@ -1,9 +1,7 @@
 from fastapi import FastAPI
-<<<<<<< HEAD
-from routers import stats, osint, seed
-=======
+
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
->>>>>>> main
+
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
