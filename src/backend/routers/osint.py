@@ -1,11 +1,9 @@
 # src/backend/routers/osint.py
 from fastapi import APIRouter
+
 from datetime import datetime
-from src.backend.db.mongo import db
-from src.backend.db.models import IntelEvent  # 引入模型
-
-
-
+from db.mongo import db
+from db.models import IntelEvent
 
 router = APIRouter()
 
