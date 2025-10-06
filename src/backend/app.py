@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.backend.routers import stats, osint, seed
+from routers import stats, osint, seed
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
