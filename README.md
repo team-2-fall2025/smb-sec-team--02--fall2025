@@ -58,13 +58,21 @@ Environment variables are required for MongoDB connections, API keys, and config
 ## ⚙️ Database Setup and Data Import Steps
 
 1. **Ensure MongoDB Service is Running**  
+   - Follow the instruction to install the MongoDB in Windows [Install the MongoDB](https://www.geeksforgeeks.org/mongodb/how-to-install-mongodb-on-windows/)
    - Start the MongoDB service (you can do this via `services.msc` or using the command line:  
      ```
      net start MongoDB
      ```
    - The default listening port is `27017`.
+   - If you want a GUI, our database has been tested on the Navicat 15 [Navicat](https://www.navicat.com/en/)
 
 2. ### 🧩 Database Seeding from CSV
+
+Go to the Directory and run the following command:
+```
+cd src\backend
+python app.py
+```
 
 To initialize the database using the provided CSV datasets, run the following command:
 
