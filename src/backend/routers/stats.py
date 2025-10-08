@@ -1,6 +1,6 @@
 # src/backend/routers/stats.py
 from fastapi import APIRouter
-from db.mongo import db
+from backend.db.mongo import db
 
 router = APIRouter()
 
@@ -16,7 +16,8 @@ async def stats():
 
     assets = await safe_count("assets")
     intel_events = await safe_count("intel_events")
-    risk_items = await safe_count("risk_items")
+    # risk_items = await safe_count("risk_items")
+    risk_items = await safe_count("risk_register")
 
     return {
         "assets": assets,

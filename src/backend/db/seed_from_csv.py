@@ -82,22 +82,31 @@ async def import_csv_to_mongo(collection_name, file_path):
     try:
         with open(file_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            rows = []
-            for row in reader:
-                mapped_row = {}
-                for csv_key, mongo_key in FIELD_MAP.get(collection_name, {}).items():
-                    if csv_key in row:
-                        mapped_row[mongo_key] = normalize_value(mongo_key, row[csv_key])
-                if mapped_row:
-                    rows.append(mapped_row)
+            # rows = []
+            # for row in reader:
+            #     mapped_row = {}
+            #     for csv_key, mongo_key in FIELD_MAP.get(collection_name, {}).items():
+            #         if csv_key in row:
+            #             mapped_row[mongo_key] = normalize_value(mongo_key, row[csv_key])
+            #     if mapped_row:
+            #         rows.append(mapped_row)
 
-            if not rows:
-                print(f"⚠️ No valid data in {file_path}, skipping.")
+            # if not rows:
+            #     print(f"⚠️ No valid data in {file_path}, skipping.")
+            #     return
+
+            # await db[collection_name].delete_many({})  # 清空旧数据
+            # await db[collection_name].insert_many(rows)
+            # print(f"✅ Imported {len(rows)} records into '{collection_name}' collection.")
+
+            data = [row for row in reader]
+            if not data:
+                print(f"⚠️ {file_path} is empty, skipping.")
                 return
-
-            await db[collection_name].delete_many({})  # 清空旧数据
-            await db[collection_name].insert_many(rows)
-            print(f"✅ Imported {len(rows)} records into '{collection_name}' collection.")
+            # 插入前清空旧数据（避免重复）
+            await db[collection_name].delete_many({})
+            await db[collection_name].insert_many(data)
+            print(f"✅ Imported {len(data)} records into '{collection_name}' collection.")
 
     except FileNotFoundError:
         print(f"❌ File not found: {file_path}")

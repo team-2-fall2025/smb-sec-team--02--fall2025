@@ -9,15 +9,15 @@ jobs:
       # Checkout code with full commit history for secret scanning
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required for gitleaks to scan commit history
+          fetch-depth: 0
       # Run gitleaks for secret scanning
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
         with:
-          config-path: .gitleaks.toml # Optional: customize rules if needed
+          config-path: .gitleaks.toml
 
   dependency-audit:
     runs-on: ubuntu-latest
@@ -51,7 +51,8 @@ jobs:
       - name: Run npm audit
         run: npm audit
         working-directory: src/frontend
-  lint-check:
+
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -61,17 +62,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13.1'
-      # Install Python dependencies, ruff, black, and pytest
+      # Install Python dependencies, ruff, and pytest
       - name: Install Python dependencies and tools
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt ruff
+          pip install -r requirements.txt ruff pytest pytest-asyncio httpx
         working-directory: src/backend
       # Run ruff for backend linting
       - name: Run ruff
         run: ruff check .
         working-directory: src/backend
-      # Set up Node.js for frontend linting and TypeScript tests
+      # Run pytest for backend testing
+      - name: Run pytest
+        run: pytest tests
+        working-directory: src/backend
+      # Set up Node.js for frontend linting
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
