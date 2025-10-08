@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function Health() {
+export function Health() {
   const [data, setData] = useState<any>(null);
   useEffect(() => {
     fetch("/health").then(r => r.json()).then(setData).catch(() => setData({error: true}));

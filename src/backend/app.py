@@ -1,13 +1,21 @@
 from fastapi import FastAPI
 
-from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
-
+from backend.routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Allow your frontend origin
+    allow_credentials=True,                   # Allow cookies or auth headers if needed
+    allow_methods=["*"],                      # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],                      # Allow all headers
+)
+
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"version": "1.0", "status": "healthy"}
 
 @app.get("/version")
 def version():
