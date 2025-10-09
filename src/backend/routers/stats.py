@@ -1,6 +1,6 @@
 # src/backend/routers/stats.py
 from fastapi import APIRouter
-from backend.db.mongo import db
+from db.mongo import db
 
 router = APIRouter()
 

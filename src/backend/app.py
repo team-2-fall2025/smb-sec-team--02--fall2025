@@ -1,13 +1,14 @@
+
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
-from src.backend.database import db
+
+
+from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
-
-from backend.routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 

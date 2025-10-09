@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import os
 from datetime import datetime, timedelta
@@ -9,7 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.asyncio import AsyncIOExecutor
 
-from .osint.otx_client import OTXClient, OTXConfig
+from .osint.otx_client import OTXClient
 from ..db.models import IntelEvent
 from ..database import db
 

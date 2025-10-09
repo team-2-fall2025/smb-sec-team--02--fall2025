@@ -1,4 +1,6 @@
-import os, time, requests
+import os
+import time
+import requests
 
 from dotenv import load_dotenv
 load_dotenv() # Replace path with the path to the .env file
@@ -15,7 +17,8 @@ class OTXClient:
         for attempt in range(3):
             r = requests.get(url, headers=self.headers, timeout=10)
             if r.status_code == 429:
-                time.sleep(2 ** attempt); continue
+                time.sleep(2 ** attempt); 
+                continue
             r.raise_for_status()
             return r.json()
         return {}

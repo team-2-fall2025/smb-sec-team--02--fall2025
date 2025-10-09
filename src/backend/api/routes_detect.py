@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime
 import logging
 
