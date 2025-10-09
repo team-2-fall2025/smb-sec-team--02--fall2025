@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 import os
+from dotenv import load_dotenv
+from src.backend.database import db
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "FastAPI is running"}
 
 @app.get("/health")
 def health():
@@ -9,14 +18,6 @@ def health():
         "status": "ok",
         "env": os.getenv("APP_ENV", "dev")
     }
-from fastapi import FastAPI
-from src.backend.database import db
-
-app = FastAPI()
-
-@app.get("/")
-async def root():
-    return {"message": "FastAPI is running"}
 
 @app.get("/ping_db")
 async def ping_db():
