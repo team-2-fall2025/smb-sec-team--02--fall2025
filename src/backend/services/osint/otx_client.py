@@ -17,7 +17,7 @@ class OTXClient:
         for attempt in range(3):
             r = requests.get(url, headers=self.headers, timeout=10)
             if r.status_code == 429:
-                time.sleep(2 ** attempt); 
+                time.sleep(2 ** attempt)
                 continue
             r.raise_for_status()
             return r.json()
