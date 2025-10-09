@@ -9,15 +9,15 @@ jobs:
       # Checkout code with full commit history for secret scanning
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required for gitleaks to scan commit history
+          fetch-depth: 0
       # Run gitleaks for secret scanning
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
         with:
-          config-path: .gitleaks.toml # Optional: customize rules if needed
+          config-path: .gitleaks.toml
 
   dependency-audit:
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13.1'
       # Install pip-audit
       - name: Install pip-audit
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.13'
       # Install Node.js dependencies
       - name: Install Node.js dependencies
         run: npm install
@@ -50,4 +50,42 @@ jobs:
       # Run npm audit for Node.js dependency audit
       - name: Run npm audit
         run: npm audit
+        working-directory: src/frontend
+
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+      # Set up Python for backend linting and testing
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+      # Install Python dependencies, ruff, and pytest
+      - name: Install Python dependencies and tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff pytest pytest-asyncio httpx
+        working-directory: src/backend
+      # Run ruff for backend linting
+      - name: Run ruff
+        run: ruff check .
+        working-directory: src/backend
+      # Run pytest for backend testing
+      - name: Run pytest
+        run: pytest tests
+        working-directory: src/backend
+      # Set up Node.js for frontend linting
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13'
+      # Install Node.js dependencies and eslint
+      - name: Install Node.js dependencies and eslint
+        run: npm install eslint --save-dev
+        working-directory: src/frontend
+      # Run eslint for frontend linting
+      - name: Run eslint
+        run: npx eslint .
         working-directory: src/frontend

@@ -1,15 +1,17 @@
-# 1) Roles
+# 1) Team Members
 
-We have 4 members. Two are for the backend development, two are for the
-frontend. For the other work, the team leader can assign tasks to other
-team members to ensure that the workload is distributed fairly among all
-members.
+-   Ramzey Alissa (rag9w@umsystem.edu): Team Lead / risk & compliance
+-   Weikang Ding (dingweik@msu.edu): risk & compliance
+-   Binhao Ma (1145183478@qq.com): backend / frontend
+-   Immanuel Olaoye (olaoye939@gmail.com): backend / frontend
 
 # 2) Meeting Cadence
 
 -   In-person communication: the team meeting will be held after the
-    class, and every team member needs to share their thoughts and
-    progress.
+    class (mon 11 am), and every team member needs to share their thoughts,
+    progress, and plan for the next week.
+
+-   In case of missed meeting: asynchronus on discord later that day, flexible timing.
 
 -   Online communication: Discord: #meeting-notes (record the meeting
     notes), #general (for discussion).
@@ -20,40 +22,22 @@ members.
 
 -   Normal decisions: Simple majority.
 
--   Ties / blocked: Team Lead decides after hearing 1 pro & 1 con.
+-   Ties / blocked: Team Lead decides after hearing pros & cons.
 
--   High-impact (scope, deadlines, infra): require quorum + TL sign-off;
-    document decisions.
+# 4) Code Review Rules
 
-# 4) Code of Conduct
+-   Branch protection for main
 
--   Respect & inclusion: One speaker at a time; assume good intent.
+-   Changes must be pushed to new branch then a pull request will be created
 
--   Transparent work: Keep issues small; status in Discord.
+-   PR will be reviewed and requires only a single approval except for sensetive file which will require two
 
--   Review kindness: Critique code, not people; propose concrete fixes.
+-   PR's will be checked by CI and must return green.
 
--   Security first: No secrets in Git; rotate any accidental leaks and
-    remove immediately.
+-   PR's will be reviewd by team lead to ensure compliance with policies and feedback will be given.
 
--   Academic integrity: Attribute sources/snippets; no plagiarism.
+-   PR feedback must accpeted and incorporated into changes.
 
-# 5) Escalation Path (Incidents & Blockers)
+# 5) Service Level Agreement
 
--   Severity guide:
-
--   \- Sev-1 (prod outage/secret leak): Stop work → notify \@team →
-    rotate/contain → TL coordinates fix. Acknowledge ≤15 min, status
-    every 60 min.
-
--   \- Sev-2 (build red/merge-blocking): Fix or revert within 4h; pair
-    as needed.
-
--   \- Sev-3 (individual blocker): Ask in #general; if no response in 12h,
-    TL assigns help.
-
--   Escalation ladder: Assignee → Backup owner → Team Lead → Instructor
-    (with brief & ask).
-
--   Post-incident note: 5-line summary, cause, fix, follow-ups in
-    /docs/notes/incidents/.
+-   Team members must respond to and review pull requests within 24 hours
