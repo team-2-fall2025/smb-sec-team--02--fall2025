@@ -1,8 +1,7 @@
 import os
 import time
-from pydantic import HttpUrl
 import requests
-
+from pydantic import HttpUrl
 from dotenv import load_dotenv
 load_dotenv() # Replace path with the path to the .env file
 
