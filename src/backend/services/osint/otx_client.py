@@ -1,9 +1,29 @@
 import os
 import time
+from pydantic import HttpUrl
 import requests
 
 from dotenv import load_dotenv
 load_dotenv() # Replace path with the path to the .env file
+
+class OTXAPIError(Exception):
+    """Custom exception for OTX API errors."""
+    pass
+
+class OTXConfig:
+    api_key: str
+    base_url: HttpUrl 
+    rate_limit_delay: float
+    max_retries: int
+    timeout: int
+    """Configuration class for OTXClient."""
+    def __init__(self, api_key, base_url = None, 
+                 rate_limit_delay = None, max_retries = None, timeout = None):
+        self.api_key = api_key
+        self.base_url=base_url or "https://otx.alienvault.com/api/v1",
+        self.rate_limit_delay=rate_limit_delay or 2.0,
+        self.max_retries=max_retries or 5,
+        self.timeout=timeout or 60
 
 class OTXClient:
     BASE = "https://otx.alienvault.com/api/v1"
