@@ -1,7 +1,12 @@
-from fastapi import FastAPI
 
-from backend.routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
+from fastapi import FastAPI
+from dotenv import load_dotenv
+
+from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
 from fastapi.middleware.cors import CORSMiddleware
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(title="SMB Sec Platform", version="0.2.0")
 
@@ -12,6 +17,10 @@ app.add_middleware(
     allow_methods=["*"],                      # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],                      # Allow all headers
 )
+
+@app.get("/")
+async def root():
+    return {"message": "FastAPI is running"}
 
 @app.get("/health")
 def health():
