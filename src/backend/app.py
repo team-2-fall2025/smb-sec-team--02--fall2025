@@ -1,9 +1,8 @@
 
 from fastapi import FastAPI
-import os
 from dotenv import load_dotenv
 
-from .routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
+from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file

@@ -2,8 +2,8 @@
 from fastapi import APIRouter
 
 from datetime import datetime
-from ..db.mongo import db
-from ..db.models import IntelEvent
+from db.mongo import db
+from db.models import IntelEvent
 
 router = APIRouter()
 
