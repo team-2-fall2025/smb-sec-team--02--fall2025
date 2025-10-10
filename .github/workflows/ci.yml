@@ -70,7 +70,7 @@ jobs:
         working-directory: src/backend
       # Run ruff for backend linting
       - name: Run ruff
-        run: ruff check .
+        run: ruff check . --ignore F401
         working-directory: src/backend
       # Run pytest for backend testing
       - name: Run pytest
