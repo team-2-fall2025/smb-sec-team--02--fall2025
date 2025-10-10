@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from db.seed_from_csv import main as seed_main
+from ..db.seed_from_csv import main as seed_main
 
 router = APIRouter()
 

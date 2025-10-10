@@ -1,10 +1,7 @@
 import pytest
-import os
-import time
 from unittest.mock import Mock, patch
 
 from ..services.osint.otx_client import OTXClient, OTXConfig, OTXAPIError
-from db.models import IntelEvent
 
 
 class TestOTXConfig:

@@ -10,7 +10,7 @@ from apscheduler.executors.asyncio import AsyncIOExecutor
 
 from .osint.otx_client import OTXClient
 from ..db.models import IntelEvent
-from ..database import db
+from ..db import db
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
