@@ -46,6 +46,7 @@ async def list_assets():
 
 @router.get("/{asset_id}", response_model=dict)
 async def get_asset(asset_id: str):
+    # 1) Validate & load asset
     try:
         _id = ObjectId(asset_id)
     except Exception:
@@ -55,27 +56,41 @@ async def get_asset(asset_id: str):
     if not a:
         raise HTTPException(status_code=404, detail="Asset not found")
 
-    # 7-day recent intel via links -> intel_events
+    # 2) Recent intel list (keep your existing pipeline; optional)
     since = datetime.utcnow() - timedelta(days=7)
-    pipeline = [
-        {"$match": {"asset_id": _id}},
-        {"$lookup": {"from": "intel_events", "localField": "intel_id", "foreignField": "_id", "as": "ie"}},
-        {"$unwind": "$ie"},
-        {"$match": {"ie.created_at": {"$gte": since}}},
-        {"$project": {"_id": 0, "time": "$ie.created_at", "source": "$ie.source",
-                      "indicator": "$ie.indicator", "severity": "$ie.severity", "match_type": "$match_type"}},
+    asset_id_values = [_id, str(_id)]
+    b = await db["intel_events"].find_one({"_id": str(_id)})
+    recent_pipeline = [
+        {"$match": {
+            "asset_id": {"$in": asset_id_values},
+            "created_at": {"$gte": since},
+        }},
+        {"$addFields": {"severity_num": {"$toInt": "$severity"}}},
+        {"$project": {
+            "_id": 0,
+            "time": "$created_at",
+            "source": "$source",
+            "indicator": "$indicator",
+            "indicator_type": "$indicator_type",
+            "summary": "$summary",
+            "severity": "$severity_num",
+            "raw_severity": "$severity",
+        }},
         {"$sort": {"time": -1}},
+        {"$limit": 200},
     ]
-    recent = [x async for x in db["asset_intel_links"].aggregate(pipeline)]
+    recent = [x async for x in db["intel_events"].aggregate(recent_pipeline)]
 
-    # risk seed = criticality(1..5) × max(1, max_severity_7d)
+    intel_comp = int(b.get("severity") or 0)
+
+    # 4) Criticality & risk
     crit = int(a.get("criticality") or 0)
     if not (1 <= crit <= 5):
         sens = (a.get("data_sensitivity") or "Low").lower()
         crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
     crit = max(1, min(5, crit))
-    max_sev = max([int(r.get("severity") or 0) for r in recent], default=0)
-    intel_comp = max(1, max_sev)
+    max_sev = intel_comp
+
     score = crit * intel_comp
 
     a["_id"] = str(a["_id"])
