@@ -1,10 +1,11 @@
 
 from fastapi import FastAPI
 from dotenv import load_dotenv
-
+from db.init_db import init_indexes
+from src.backend.routers import assets
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
 from fastapi.middleware.cors import CORSMiddleware
-
+from contextlib import asynccontextmanager
 # Load environment variables from .env file
 load_dotenv()
 
@@ -22,6 +23,20 @@ app.add_middleware(
 async def root():
     return {"message": "FastAPI is running"}
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 🚀 应用启动时执行
+    init_indexes()
+    print("Indexes initialized!")
+
+    # yield 相当于应用运行期间
+    yield
+
+    # # 🛑 应用关闭时（可选）
+    # print("App shutting down...")
+
+# app = FastAPI(lifespan=lifespan)
+
 @app.get("/health")
 def health():
     return {"version": "1.0", "status": "healthy"}
@@ -34,6 +49,7 @@ def version():
 app.include_router(stats.router, prefix="/api")
 app.include_router(osint.router, prefix="/api")
 app.include_router(seed.router, prefix="/api")
+app.include_router(assets.router, prefix="/api")
 
 app.include_router(identify.router)
 app.include_router(protect.router)
