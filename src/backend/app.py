@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from db.init_db import init_indexes
-from src.backend.routers import assets
+from routers import assets
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
