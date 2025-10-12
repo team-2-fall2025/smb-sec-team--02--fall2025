@@ -59,7 +59,7 @@ async def get_asset(asset_id: str):
     # 2) Recent intel list (keep your existing pipeline; optional)
     since = datetime.utcnow() - timedelta(days=7)
     asset_id_values = [_id, str(_id)]
-    b = await db["intel_events"].find_one({"_id": str(_id)})
+    intel = await db["intel_events"].find_one({"_id": str(_id)})
     recent_pipeline = [
         {"$match": {
             "asset_id": {"$in": asset_id_values},
@@ -81,7 +81,7 @@ async def get_asset(asset_id: str):
     ]
     recent = [x async for x in db["intel_events"].aggregate(recent_pipeline)]
 
-    intel_comp = int(b.get("severity") or 0)
+    intel_comp = int(intel.get("severity") or 0)
 
     # 4) Criticality & risk
     crit = int(a.get("criticality") or 0)
@@ -89,6 +89,7 @@ async def get_asset(asset_id: str):
         sens = (a.get("data_sensitivity") or "Low").lower()
         crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
     crit = max(1, min(5, crit))
+    max_sev = max(1, min(5, intel_comp))
     max_sev = intel_comp
 
     score = crit * intel_comp
