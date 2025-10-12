@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import io
 import json
@@ -46,12 +46,67 @@ async def list_assets():
 
 @router.get("/{asset_id}", response_model=dict)
 async def get_asset(asset_id: str):
-    """按 ID 获取资产"""
-    asset = await db["assets"].find_one({"_id": ObjectId(asset_id)})
-    if not asset:
-        raise HTTPException(status_code=404, detail="Asset not found")
-    return {"data": serialize_asset(asset)}
+    # 1) Validate & load asset
+    try:
+        _id = ObjectId(asset_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid asset id")
 
+    a = await db["assets"].find_one({"_id": _id, "deleted_at": {"$exists": False}})
+    if not a:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    # 2) Recent intel list (keep your existing pipeline; optional)
+    since = datetime.utcnow() - timedelta(days=7)
+    asset_id_values = [_id, str(_id)]
+    intel = await db["intel_events"].find_one({"_id": str(_id)})
+    recent_pipeline = [
+        {"$match": {
+            "asset_id": {"$in": asset_id_values},
+            "created_at": {"$gte": since},
+        }},
+        {"$addFields": {"severity_num": {"$toInt": "$severity"}}},
+        {"$project": {
+            "_id": 0,
+            "time": "$created_at",
+            "source": "$source",
+            "indicator": "$indicator",
+            "indicator_type": "$indicator_type",
+            "summary": "$summary",
+            "severity": "$severity_num",
+            "raw_severity": "$severity",
+        }},
+        {"$sort": {"time": -1}},
+        {"$limit": 200},
+    ]
+    recent = [x async for x in db["intel_events"].aggregate(recent_pipeline)]
+
+    intel_comp = int(intel.get("severity") or 0)
+
+    # 4) Criticality & risk
+    crit = int(a.get("criticality") or 0)
+    if not (1 <= crit <= 5):
+        sens = (a.get("data_sensitivity") or "Low").lower()
+        crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
+    crit = max(1, min(5, crit))
+    max_sev = max(1, min(5, intel_comp))
+    max_sev = intel_comp
+
+    score = crit * intel_comp
+
+    a["_id"] = str(a["_id"])
+    return {
+        "data": {
+            **a,
+            "recent_intel": recent,
+            "risk": {
+                "score": score,
+                "components": {"criticality": crit, "intel_max_severity_7d": max_sev},
+                "explain": f"crit {crit} × intel {intel_comp} = {score}",
+                "window_days": 7,
+            },
+        }
+    }
 
 @router.delete("/{asset_id}", response_model=dict)
 async def delete_asset(asset_id: str):

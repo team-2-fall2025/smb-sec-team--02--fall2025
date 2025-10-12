@@ -1,4 +1,4 @@
-from src.backend.db.mongo import db
+from db.mongo import db
 
 def init_indexes():
     db["assets"].create_index("ip")
