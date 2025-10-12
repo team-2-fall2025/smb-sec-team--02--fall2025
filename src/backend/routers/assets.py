@@ -1,19 +1,32 @@
-from fastapi import APIRouter, HTTPException
-from bson import ObjectId
-from db.mongo import db
 from datetime import datetime
+import csv
+import io
+import json
+
+from bson import ObjectId
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from db.mongo import db
+
 
 router = APIRouter(prefix="/api/assets", tags=["assets"])
 
-def serialize_asset(asset):
+
+# ---------------------------
+# 工具函数
+# ---------------------------
+def serialize_asset(asset: dict) -> dict:
     """Convert Mongo _id to string safely"""
     if asset and "_id" in asset:
         asset["_id"] = str(asset["_id"])
     return asset
 
 
+# ---------------------------
+# 基础 CRUD
+# ---------------------------
 @router.post("/", response_model=dict)
 async def create_asset(asset: dict):
+    """创建资产"""
     asset["created_at"] = datetime.utcnow()
     asset["updated_at"] = datetime.utcnow()
 
@@ -25,6 +38,7 @@ async def create_asset(asset: dict):
 
 @router.get("/", response_model=dict)
 async def list_assets():
+    """获取所有资产"""
     assets_cursor = db["assets"].find()
     assets = [serialize_asset(a) async for a in assets_cursor]
     return {"count": len(assets), "data": assets}
@@ -32,6 +46,7 @@ async def list_assets():
 
 @router.get("/{asset_id}", response_model=dict)
 async def get_asset(asset_id: str):
+    """按 ID 获取资产"""
     asset = await db["assets"].find_one({"_id": ObjectId(asset_id)})
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
@@ -40,29 +55,27 @@ async def get_asset(asset_id: str):
 
 @router.delete("/{asset_id}", response_model=dict)
 async def delete_asset(asset_id: str):
+    """删除资产"""
     result = await db["assets"].delete_one({"_id": ObjectId(asset_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Asset not found")
     return {"message": "Asset deleted successfully"}
 
 
-from fastapi import UploadFile, File, Query
-import csv, io, json
-from datetime import datetime
-
+# ---------------------------
+# 批量导入功能
+# ---------------------------
 @router.post("/import", response_model=dict)
 async def import_assets(
     file: UploadFile = File(...),
-    dry_run: bool = Query(False, description="If true, only validate without inserting")
+    dry_run: bool = Query(False, description="If true, only validate without inserting"),
 ):
     """
     批量导入资产数据（支持 CSV / JSON）
     - dry_run=true 时只校验数据，不写入数据库
     """
-
     filename = file.filename.lower()
     content = await file.read()
-    assets = []
 
     # --- 1️⃣ 解析文件内容 ---
     if filename.endswith(".csv"):
@@ -72,7 +85,9 @@ async def import_assets(
     elif filename.endswith(".json"):
         assets = json.loads(content)
     else:
-        raise HTTPException(status_code=400, detail="Unsupported file format (only CSV or JSON)")
+        raise HTTPException(
+            status_code=400, detail="Unsupported file format (only CSV or JSON)"
+        )
 
     inserted, duplicates, errors = 0, 0, []
 
@@ -81,7 +96,9 @@ async def import_assets(
         try:
             # 必填字段检查
             if not asset.get("name") or not asset.get("type"):
-                errors.append({"row": i + 1, "error": "Missing required fields: name/type"})
+                errors.append(
+                    {"row": i + 1, "error": "Missing required fields: name/type"}
+                )
                 continue
 
             # 设置时间戳
@@ -89,10 +106,12 @@ async def import_assets(
             asset["updated_at"] = datetime.utcnow()
 
             # 检查重复资产（根据 name 或 IP+hostname）
-            query = {"$or": [
-                {"name": asset["name"]},
-                {"ip": asset.get("ip"), "hostname": asset.get("hostname")}
-            ]}
+            query = {
+                "$or": [
+                    {"name": asset["name"]},
+                    {"ip": asset.get("ip"), "hostname": asset.get("hostname")},
+                ]
+            }
             existing = await db["assets"].find_one(query)
             if existing:
                 duplicates += 1
@@ -109,5 +128,5 @@ async def import_assets(
         "inserted": inserted,
         "duplicates_skipped": duplicates,
         "errors": errors,
-        "dry_run": dry_run
+        "dry_run": dry_run,
     }

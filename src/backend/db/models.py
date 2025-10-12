@@ -1,13 +1,11 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, GetJsonSchemaHandler
 
 from bson import ObjectId
-from pydantic_core import core_schema
-from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
-from typing import Any
-from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field, GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic_core import CoreSchema, core_schema
+from pydantic.json_schema import JsonSchemaValue
+
 
 # ---------------------------
 # ObjectId 类型兼容
@@ -26,12 +24,18 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: Any) -> CoreSchema:
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
         """用于 Pydantic v2 序列化支持"""
-        return core_schema.no_info_after_validator_function(cls.validate, core_schema.str_schema())
+        return core_schema.no_info_after_validator_function(
+            cls.validate, core_schema.str_schema()
+        )
 
     @classmethod
-    def __get_pydantic_json_schema__(cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+    def __get_pydantic_json_schema__(
+        cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
         """告诉 OpenAPI 它是 string 类型"""
         json_schema = handler(core_schema)
         json_schema.update(type="string")
@@ -41,8 +45,6 @@ class PyObjectId(ObjectId):
 # ---------------------------
 # 资产表 (assets)
 # ---------------------------
-
-
 class Asset(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str
@@ -72,7 +74,7 @@ class IntelEvent(BaseModel):
     event_type: str  # malware, threat_intel, etc.
     indicator: str  # IP/domain/hash
     indicator_type: str  # ipv4/domain/md5/sha256
-    severity: int = Field(ge=0, le=5)  # 数值等级 1~5，更方便风险计算
+    severity: int = Field(ge=0, le=5)  # 数值等级 1~5
     confidence: float = Field(ge=0.0, le=1.0)
     description: Optional[str] = None
     raw_data: Dict[str, Any] = {}
