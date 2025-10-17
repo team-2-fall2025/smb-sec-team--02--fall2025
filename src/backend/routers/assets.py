@@ -5,10 +5,12 @@ import json
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from fastapi.params import Body
+from pydantic import BaseModel
 from db.mongo import db
 
 
-router = APIRouter(prefix="/api/assets", tags=["assets"])
+router = APIRouter(prefix="/assets", tags=["assets"])
 
 
 # ---------------------------
@@ -56,10 +58,26 @@ async def get_asset(asset_id: str):
     if not a:
         raise HTTPException(status_code=404, detail="Asset not found")
 
-    # 2) Recent intel list (keep your existing pipeline; optional)
+    # 2) Get intel event - handle case where it doesn't exist
+    intel = await db["intel_events"].find_one({"_id": _id})
+    
+    # Set default values if intel event not found
+    if not intel:
+        print(f"No intel event found for asset_id: {asset_id}")
+        intel_comp = 0  # Default severity when no intel found
+        intel = {}  # Empty dict to avoid None errors
+    else:
+        print("Intel event found:")
+        print(intel)
+        # Safely get severity with default value
+        intel_comp = int(intel.get("severity") or 0)
+
+    print("----------------------------------------")
+
+    # 3) Recent intel list pipeline
     since = datetime.utcnow() - timedelta(days=7)
     asset_id_values = [_id, str(_id)]
-    intel = await db["intel_events"].find_one({"_id": str(_id)})
+    
     recent_pipeline = [
         {"$match": {
             "asset_id": {"$in": asset_id_values},
@@ -81,19 +99,18 @@ async def get_asset(asset_id: str):
     ]
     recent = [x async for x in db["intel_events"].aggregate(recent_pipeline)]
 
-    intel_comp = int(intel.get("severity") or 0)
-
-    # 4) Criticality & risk
+    # 4) Criticality & risk calculation
     crit = int(a.get("criticality") or 0)
     if not (1 <= crit <= 5):
         sens = (a.get("data_sensitivity") or "Low").lower()
         crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
     crit = max(1, min(5, crit))
+    
+    # Use intel_comp which now has safe default value
     max_sev = max(1, min(5, intel_comp))
-    max_sev = intel_comp
-
     score = crit * intel_comp
 
+    # 5) Prepare response
     a["_id"] = str(a["_id"])
     return {
         "data": {
@@ -101,7 +118,10 @@ async def get_asset(asset_id: str):
             "recent_intel": recent,
             "risk": {
                 "score": score,
-                "components": {"criticality": crit, "intel_max_severity_7d": max_sev},
+                "components": {
+                    "criticality": crit, 
+                    "intel_max_severity_7d": max_sev,
+                },
                 "explain": f"crit {crit} × intel {intel_comp} = {score}",
                 "window_days": 7,
             },
@@ -185,3 +205,56 @@ async def import_assets(
         "errors": errors,
         "dry_run": dry_run,
     }
+
+class TopRiskRequest(BaseModel):
+    limit: int = 5
+
+@router.post("/top-risky", response_model=dict)
+async def get_top_risky_assets(req: TopRiskRequest = Body(...)):
+    """
+    Return the top N risky assets, sorted by risk score (descending).
+    Risk score = criticality × intel_max_severity_7d
+    """
+    limit = req.limit
+
+    assets_cursor = db["assets"].find({"deleted_at": {"$exists": False}})
+    assets_list = [a async for a in assets_cursor]
+
+    risky_assets = []
+    for a in assets_list:
+        # Ensure _id is string
+        a["_id"] = str(a["_id"])
+
+        # Compute criticality
+        crit = int(a.get("criticality") or 0)
+        if not (1 <= crit <= 5):
+            sens = (a.get("data_sensitivity") or "Low").lower()
+            crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
+        crit = max(1, min(5, crit))
+
+        # Get latest intel severity for this asset (max in last 7 days)
+        since = datetime.utcnow() - timedelta(days=7)
+        asset_id_values = [a["_id"], a.get("_id")]
+        intel_pipeline = [
+            {"$match": {"asset_id": {"$in": asset_id_values}, "created_at": {"$gte": since}}},
+            {"$addFields": {"severity_num": {"$toInt": "$severity"}}},
+            {"$sort": {"severity_num": -1}},
+            {"$limit": 1},
+        ]
+        recent_intel = [x async for x in db["intel_events"].aggregate(intel_pipeline)]
+        intel_severity = recent_intel[0]["severity_num"] if recent_intel else 1
+
+        score = crit * intel_severity
+
+        risky_assets.append({
+            "_id": a["_id"],
+            "name": a.get("name"),
+            "risk": {"score": score, "criticality": crit, "intel_max_severity_7d": intel_severity},
+        })
+
+    # Sort descending and take top N
+    risky_assets.sort(key=lambda x: x["risk"]["score"], reverse=True)
+    top_assets = risky_assets[:limit]
+
+    return {"count": len(top_assets), "data": top_assets}
+
