@@ -1,0 +1,4 @@
+name,type,ip,hostname,owner,business_unit,criticality,data_sensitivity
+web-01,Service,203.0.113.10,web01.acme.local,web,Digital,4,High
+db-01,HW,203.0.113.20,db01.acme.local,data,Digital,5,High
+crm-app,SW,,crm.acme.local,crm,Sales,3,Moderate
