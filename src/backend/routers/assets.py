@@ -7,6 +7,7 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from fastapi.params import Body
 from pydantic import BaseModel
+from agents.identify_agent import generate_asset_intel_links
 from db.mongo import db
 
 
@@ -34,15 +35,95 @@ async def create_asset(asset: dict):
 
     result = await db["assets"].insert_one(asset)
     asset["_id"] = str(result.inserted_id)
+    await generate_asset_intel_links()
 
     return {"message": "Asset created successfully", "data": asset}
+
+@router.put("/", response_model=dict)
+async def edit_asset(updated_asset: dict = Body(...)):
+    """
+    Replace an existing asset with the provided object.
+    The full asset object should be provided in the request body.
+    """
+    print(updated_asset)
+    try:
+        _id = ObjectId(updated_asset["_id"])
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid asset id")
+
+    # Ensure _id is not overwritten
+    updated_asset["_id"] = _id
+    updated_asset["updated_at"] = datetime.utcnow()
+
+    # Keep the original created_at if it exists
+    existing = await db["assets"].find_one({"_id": _id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Asset not found")
+    updated_asset["created_at"] = existing.get("created_at", datetime.utcnow())
+
+    # Replace the document
+    result = await db["assets"].replace_one({"_id": _id}, updated_asset)
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    # Optionally regenerate links if key fields changed
+    await generate_asset_intel_links()
+
+    serialize_asset(updated_asset)
+    return {"message": "Asset updated successfully", "data": updated_asset}
 
 
 @router.get("/", response_model=dict)
 async def list_assets():
     """获取所有资产"""
-    assets_cursor = db["assets"].find()
-    assets = [serialize_asset(a) async for a in assets_cursor]
+    days_ago = datetime.utcnow() - timedelta(days=100)
+
+    pipeline = [
+        # Lookup bridge table links
+        {'$lookup': {
+            'from': 'asset_intel_links',
+            'localField': '_id',
+            'foreignField': 'asset_id',
+            'as': 'links'
+        }},
+        {'$unwind': {'path': '$links', 'preserveNullAndEmptyArrays': True}},
+        
+        # Lookup linked intel events
+        {'$lookup': {
+            'from': 'intel_events',
+            'let': {'intel_id': '$links.intel_id'},
+            'pipeline': [
+                {'$match': {'$expr': {'$and': [
+                    {'$eq': ['$_id', '$$intel_id']},
+                    {'$gte': ['$created_at', days_ago.isoformat() + 'Z']}
+                ]}}},
+                {'$project': {'severity': 1, '_id': 0}}
+            ],
+            'as': 'intel_event'
+        }},
+        {'$unwind': {'path': '$intel_event', 'preserveNullAndEmptyArrays': True}},        
+        # Group all severities under each asset
+        {'$group': {
+            "_id": "$_id",
+            "org": {"$first": "$org"},
+            "owner": {"$first": "$owner"},
+            "business_unit": {"$first": "$business_unit"},
+            "criticality": {"$first": "$criticality"},
+            "data_sensitivity": {"$first": "$data_sensitivity"},
+            "name": {"$first": "$name"},
+            "type": {"$first": "$type"},
+            "ip": {"$first": "$ip"},
+            "hostname": {"$first": "$hostname"},
+            'intel_events': {'$push': '$intel_event.severity'}
+        }},
+    ]
+    assets = [x async for x in db["assets"].aggregate(pipeline)]
+    # print(assets)
+    for asset in assets:
+        asset["_id"] = str(asset["_id"])
+        
+    
+    
     return {"count": len(assets), "data": assets}
 
 
@@ -54,78 +135,64 @@ async def get_asset(asset_id: str):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid asset id")
 
-    a = await db["assets"].find_one({"_id": _id, "deleted_at": {"$exists": False}})
-    if not a:
-        raise HTTPException(status_code=404, detail="Asset not found")
+    days_ago = datetime.now() - timedelta(days=30)
 
-    # 2) Get intel event - handle case where it doesn't exist
-    intel = await db["intel_events"].find_one({"_id": _id})
-    
-    # Set default values if intel event not found
-    if not intel:
-        print(f"No intel event found for asset_id: {asset_id}")
-        intel_comp = 0  # Default severity when no intel found
-        intel = {}  # Empty dict to avoid None errors
-    else:
-        print("Intel event found:")
-        print(intel)
-        # Safely get severity with default value
-        intel_comp = int(intel.get("severity") or 0)
-
-    print("----------------------------------------")
-
-    # 3) Recent intel list pipeline
-    since = datetime.utcnow() - timedelta(days=7)
-    asset_id_values = [_id, str(_id)]
-    
-    recent_pipeline = [
-        {"$match": {
-            "asset_id": {"$in": asset_id_values},
-            "created_at": {"$gte": since},
+    pipeline = [
+        {"$match": {"_id": _id}},
+        {"$lookup": {
+            "from": "asset_intel_links",
+            "localField": "_id",
+            "foreignField": "asset_id",
+            "as": "links"
         }},
-        {"$addFields": {"severity_num": {"$toInt": "$severity"}}},
-        {"$project": {
-            "_id": 0,
-            "time": "$created_at",
-            "source": "$source",
-            "indicator": "$indicator",
-            "indicator_type": "$indicator_type",
-            "summary": "$summary",
-            "severity": "$severity_num",
-            "raw_severity": "$severity",
+        {"$unwind": {"path": "$links", "preserveNullAndEmptyArrays": True}},
+        {"$lookup": {
+            "from": "intel_events",
+            "let": {"intel_id": "$links.intel_id"},
+            "pipeline": [
+                {"$match": {"$expr": {
+                    "$and": [
+                        {"$eq": ["$_id", "$$intel_id"]},
+                        {"$gte": ["$created_at", days_ago.isoformat() + "Z"]}
+                    ]
+                }}}
+            ],
+            "as": "intel_event"
         }},
-        {"$sort": {"time": -1}},
-        {"$limit": 200},
+        {"$unwind": {"path": "$intel_event", "preserveNullAndEmptyArrays": True}},
+        {"$group": {
+            "_id": "$_id",
+            "org": {"$first": "$org"},
+            "owner": {"$first": "$owner"},
+            "business_unit": {"$first": "$business_unit"},
+            "criticality": {"$first": "$criticality"},
+            "data_sensitivity": {"$first": "$data_sensitivity"},
+            "name": {"$first": "$name"},
+            "type": {"$first": "$type"},
+            "ip": {"$first": "$ip"},
+            "hostname": {"$first": "$hostname"},
+            "intel_events": {"$push": "$intel_event"}
+        }}
     ]
-    recent = [x async for x in db["intel_events"].aggregate(recent_pipeline)]
+    results = [x async for x in db.assets.aggregate(pipeline)]
+    single_asset = results[0] if results else None
 
-    # 4) Criticality & risk calculation
-    crit = int(a.get("criticality") or 0)
-    if not (1 <= crit <= 5):
-        sens = (a.get("data_sensitivity") or "Low").lower()
-        crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
-    crit = max(1, min(5, crit))
+    single_asset["_id"] = str(single_asset["_id"])
+    for event in single_asset.get("intel_events", []):
+        event["_id"] = str(event["_id"])
     
-    # Use intel_comp which now has safe default value
-    max_sev = max(1, min(5, intel_comp))
-    score = crit * intel_comp
-
-    # 5) Prepare response
-    a["_id"] = str(a["_id"])
-    return {
-        "data": {
-            **a,
-            "recent_intel": recent,
-            "risk": {
-                "score": score,
-                "components": {
-                    "criticality": crit, 
-                    "intel_max_severity_7d": max_sev,
-                },
-                "explain": f"crit {crit} × intel {intel_comp} = {score}",
-                "window_days": 7,
-            },
+    
+    crit = int(single_asset["criticality"])
+    max_sev = int(max((ie["severity"] for ie in single_asset["intel_events"]), default=0))
+    risk = {
+            "score": crit * max_sev,
+            "explain": f"criticality ({crit}) × intel event ({max_sev})",
+            "intel_max_severity_7d": max_sev,
         }
+    single_asset["risk"] = risk
+
+    return {
+        "data": single_asset, 
     }
 
 @router.delete("/{asset_id}", response_model=dict)
@@ -134,6 +201,9 @@ async def delete_asset(asset_id: str):
     result = await db["assets"].delete_one({"_id": ObjectId(asset_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Asset not found")
+    # Delete all links for this asset
+    result = await db["asset_intel_links"].delete_many({"asset_id": asset_id})
+
     return {"message": "Asset deleted successfully"}
 
 
@@ -197,7 +267,8 @@ async def import_assets(
                 inserted += 1
         except Exception as e:
             errors.append({"row": i + 1, "error": str(e)})
-
+    
+    await generate_asset_intel_links()
     # --- 3️⃣ 返回导入结果 ---
     return {
         "inserted": inserted,
@@ -216,45 +287,52 @@ async def get_top_risky_assets(req: TopRiskRequest = Body(...)):
     Risk score = criticality × intel_max_severity_7d
     """
     limit = req.limit
+    days_ago = datetime.now() - timedelta(days=100)
+    
+    pipeline = [
+        {'$lookup': {
+            'from': 'asset_intel_links',
+            'localField': '_id',
+            'foreignField': 'asset_id',
+            'as': 'links'
+        }},
+        {'$unwind': {'path': '$links', 'preserveNullAndEmptyArrays': True}},
+        {'$lookup': {
+            'from': 'intel_events',
+            'let': {'intel_id': '$links.intel_id'},
+            'pipeline': [
+                {'$match': {'$expr': {'$and': [
+                    {'$eq': ['$_id', '$$intel_id']},
+                    {'$gte': ['$created_at', days_ago.isoformat() + 'Z']}
+                ]}}},
+                {'$project': {'severity': 1, '_id': 0}}
+            ],
+            'as': 'intel_event'
+        }},
+        {'$unwind': {'path': '$intel_event', 'preserveNullAndEmptyArrays': True}},
+        {'$match': {'intel_event': {'$exists': True}}},
+        {'$group': {
+            "_id": "$_id",
+            "criticality": {"$first": "$criticality"},
+            "name": {"$first": "$name"},
+            'intel_events': {'$push': '$intel_event.severity'}
+        }},
+        {'$project': {'_id': 0, 'name': 1, 'criticality': 1, 'intel_events': 1}}
+    ]
 
-    assets_cursor = db["assets"].find({"deleted_at": {"$exists": False}})
-    assets_list = [a async for a in assets_cursor]
-
+    # Execute the query
+    assets = [x async for x in db["assets"].aggregate(pipeline)]
     risky_assets = []
-    for a in assets_list:
-        # Ensure _id is string
-        a["_id"] = str(a["_id"])
-
-        # Compute criticality
-        crit = int(a.get("criticality") or 0)
-        if not (1 <= crit <= 5):
-            sens = (a.get("data_sensitivity") or "Low").lower()
-            crit = 5 if sens == "high" else 3 if sens.startswith("mod") else 2
-        crit = max(1, min(5, crit))
-
-        # Get latest intel severity for this asset (max in last 7 days)
-        since = datetime.utcnow() - timedelta(days=7)
-        asset_id_values = [a["_id"], a.get("_id")]
-        intel_pipeline = [
-            {"$match": {"asset_id": {"$in": asset_id_values}, "created_at": {"$gte": since}}},
-            {"$addFields": {"severity_num": {"$toInt": "$severity"}}},
-            {"$sort": {"severity_num": -1}},
-            {"$limit": 1},
-        ]
-        recent_intel = [x async for x in db["intel_events"].aggregate(intel_pipeline)]
-        intel_severity = recent_intel[0]["severity_num"] if recent_intel else 1
-
-        score = crit * intel_severity
-
+    for asset in assets:
+        max_sev = max(map(int, asset.get("intel_events", [0])))
+        crit = int(asset.get("criticality") or 0)
+        score = crit * max_sev
         risky_assets.append({
-            "_id": a["_id"],
-            "name": a.get("name"),
-            "risk": {"score": score, "criticality": crit, "intel_max_severity_7d": intel_severity},
+            "name": asset.get("name"),
+            "risk": {"score": score, "criticality": crit, "intel_max_severity_7d": max_sev},
         })
-
     # Sort descending and take top N
     risky_assets.sort(key=lambda x: x["risk"]["score"], reverse=True)
     top_assets = risky_assets[:limit]
-
     return {"count": len(top_assets), "data": top_assets}
 

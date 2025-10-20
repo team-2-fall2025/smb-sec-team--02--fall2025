@@ -1,47 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Table, Badge, Row, Col } from "react-bootstrap";
-
-// TypeScript interface for Asset view
-interface AssetView {
-    _id: string;
-    org: string;
-    name: string;
-    type: string;
-    ip: string;
-    hostname: string;
-    owner: string;
-    business_unit: string;
-    criticality: string;
-    data_sensitivity: string;
-    recent_intel: Array<{
-        time: string;
-        source: string;
-        indicator: string;
-        severity: string;
-        link?: string;
-    }>;
-    risk: {
-        score: number;
-        components: {
-            criticality: number;
-            intel_max_severity_7d: number;
-        };
-        explain: string;
-        window_days: number;
-    };
-}
+import { Asset } from "../models/Asset";
 
 export function AssetViewPage() {
     const { id } = useParams(); // get asset id from route
-    const [asset, setAsset] = useState<AssetView | null>(null);
+    const [asset, setAsset] = useState<Asset>();
 
     // Replace with your API base URL
     // @ts-ignore
     const URL = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
-        debugger;
         fetch(`${URL}/api/assets/${id}`)
             .then((res) => res.json())
             .then((res) => setAsset(res.data))
@@ -52,21 +22,10 @@ export function AssetViewPage() {
         return <p className="text-center mt-4">Loading asset...</p>;
     }
 
-    function getRiskLevel(asset: AssetView): number {
-        let q_sens: number = 0;
-        let q_crit: number = Number(asset.criticality);
-        switch (asset.data_sensitivity) {
-            case "Low":
-                q_sens = 1;
-                break;
-            case "Moderate":
-                q_sens = 2;
-                break;
-            case "High":
-                q_sens = 3;
-                break;
-        }
-        return q_sens * q_crit;
+    function getRiskLevel(asset: Asset): number {
+        let crit = asset.criticality;
+        let max_sev =  Math.max(...asset.intel_events.map((ie) => ie.severity), 0);
+        return crit * max_sev;
     }
 
     return (
@@ -104,35 +63,29 @@ export function AssetViewPage() {
             <Card className="mb-4">
                 <Card.Header>Recent Intel</Card.Header>
                 <Card.Body>
-                    {asset.recent_intel.length === 0 ? (
+                    {asset.intel_events.length === 0 ? (
                         <p className="text-muted">No recent intel found.</p>
                     ) : (
                         <Table striped bordered hover responsive>
                             <thead className="table-secondary">
                                 <tr>
-                                    <th>Time</th>
+                                    <th>Summary</th>
                                     <th>Source</th>
+                                    <th>Indicator Type</th>
                                     <th>Indicator</th>
                                     <th>Severity</th>
-                                    <th>Link</th>
+                                    <th>Created Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {asset.recent_intel.map((intel, idx) => (
+                                {asset.intel_events.map((intel, idx) => (
                                     <tr key={idx}>
-                                        <td>{intel.time}</td>
+                                        <td>{intel.summary}</td>
                                         <td>{intel.source}</td>
+                                        <td>{intel.indicator_type}</td>
                                         <td>{intel.indicator}</td>
                                         <td>{intel.severity}</td>
-                                        <td>
-                                            {intel.link ? (
-                                                <a href={intel.link} target="_blank" rel="noreferrer">
-                                                    View
-                                                </a>
-                                            ) : (
-                                                "-"
-                                            )}
-                                        </td>
+                                        <td>{intel.created_at}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -147,8 +100,8 @@ export function AssetViewPage() {
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <h4 className="mb-0">Current Score: {getRiskLevel(asset)}</h4>
-                            {/* <small className="text-muted">{asset.risk.explain}</small> */}
+                            <h4 className="mb-0">Current Score: {asset.risk.score}</h4>
+                            <small className="text-muted">{asset.risk.explain}</small>
                         </div>
                         <div>
                             {/* Placeholder sparkline (just a gray box) */}

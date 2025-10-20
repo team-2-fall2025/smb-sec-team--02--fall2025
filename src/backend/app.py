@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI
 from dotenv import load_dotenv
+from agents.identify_agent import generate_asset_intel_links
 from db.init_db import init_indexes
 from routers import assets
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
@@ -36,6 +37,10 @@ async def lifespan(app: FastAPI):
     # print("App shutting down...")
 
 # app = FastAPI(lifespan=lifespan)
+
+@app.get("/generate-links")
+async def generate_links():
+    return await generate_asset_intel_links()
 
 @app.get("/health")
 def health():

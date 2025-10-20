@@ -33,7 +33,7 @@ export function AssetEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${URL}/api/assets/${id}`, {
+      const res = await fetch(`${URL}/api/assets/`, {
         method: "PUT", // or POST depending on your API
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(asset),

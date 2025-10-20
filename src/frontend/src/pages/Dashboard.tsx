@@ -97,21 +97,32 @@ return (
         </div>
       </div>
       {/* Top 5 Risky Assets */}
-      <div className="card bg-gray-100 p-4 rounded shadow col-span-1 md:col-span-1">
-        <h2 className="text-lg font-semibold mb-2">Top 5 Risky Assets</h2>
-        {topAssets.length === 0 ? (
-          <p className="text-muted">No data</p>
-        ) : (
-          <ul className="list-group list-group-flush">
-            {topAssets.map((asset) => (
-              <li key={asset._id} className="list-group-item d-flex justify-content-between align-items-center">
-                {asset.name}
-                <span className="badge bg-danger">{asset.risk.score}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <div className="card bg-gray-100 p-4 rounded shadow col-span-1 md:col-span-2">
+  <h2 className="text-lg font-semibold mb-2">Top 5 Risky Assets</h2>
+  {topAssets.length === 0 ? (
+    <p className="text-muted">No data</p>
+  ) : (
+    <table className="min-w-full bg-white rounded shadow-sm">
+      <thead>
+        <tr className="bg-gray-200 text-left">
+          <th className="py-2 px-3 font-medium text-gray-700">Asset</th>
+          <th className="py-2 px-3 font-medium text-gray-700 text-right">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {topAssets.map((asset) => (
+          <tr key={asset._id} className="border-t hover:bg-gray-50">
+            <td className="py-2 px-3">{asset.name}</td>
+            <td className="py-2 px-3 text-right">
+              <span className="text-red-600 font-semibold">{asset.risk.score}</span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
     </div>
   </div>
 );
