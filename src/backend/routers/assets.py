@@ -39,8 +39,6 @@ async def create_asset(asset: dict):
 
     return {"message": "Asset created successfully", "data": asset}
 
-from fastapi import Body
-
 @router.put("/", response_model=dict)
 async def edit_asset(updated_asset: dict = Body(...)):
     """
