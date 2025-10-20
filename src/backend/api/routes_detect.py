@@ -6,7 +6,7 @@ import logging
 from ..services.osint.otx_client import OTXClient, OTXAPIError
 from ..services.scheduler import scheduler_service
 from ..db.models import IntelEvent
-from ..database import db
+from ..db.mongo import db
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/detect", tags=["detect"])

@@ -16,7 +16,7 @@ CSV_FILES = {
     "vulnerabilities": os.path.join(DATA_DIR, "vulnerabilities.csv"),
     "intel_events": os.path.join(DATA_DIR, "intel_events.csv"),
     "risk_register": os.path.join(DATA_DIR, "risk_register.csv"),
-    "asset_intel_links": os.path.join(DATA_DIR, "asset_intel_links_expected.csv"),
+    # "asset_intel_links": os.path.join(DATA_DIR, "asset_intel_links_expected.csv"),
 }
 
 # ✅ 各文件字段映射：CSV列名 → Mongo字段名
@@ -46,11 +46,11 @@ FIELD_MAP = {
         "Severity": "severity",
         "Description": "description",
     },
-    "asset_intel_links": {
-        "Asset Name": "asset_name",
-        "Indicator": "indicator",
-        "Match Type": "match_type",
-    },
+    # "asset_intel_links": {
+    #     "Asset Name": "asset_name",
+    #     "Indicator": "indicator",
+    #     "Match Type": "match_type",
+    # },
 }
 
 # ✅ 类型转换规则（按字段名自动转换）

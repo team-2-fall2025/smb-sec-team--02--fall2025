@@ -4,51 +4,13 @@ import { useNavigate } from "react-router-dom";
 import type { Asset } from "../models/Asset";
 export function Assets() {
     const navigate = useNavigate();
-    const initialAssets: Asset[] = [
-        {
-            _id: "1",
-            org: "AcmeRetail",
-            name: "vpn-gw",
-            type: "Service",
-            ip: "203.0.113.50",
-            hostname: "vpn.acmeretail.local",
-            owner: "netops",
-            business_unit: "IT",
-            criticality: "4",
-            data_sensitivity: "Moderate",
-        },
-        {
-            _id: "2",
-            org: "AcmeRetail",
-            name: "db-server-1",
-            type: "Server",
-            ip: "203.0.113.51",
-            hostname: "db1.acmeretail.local",
-            owner: "dbadmin",
-            business_unit: "IT",
-            criticality: "3",
-            data_sensitivity: "High",
-        },
-        {
-            _id: "3",
-            org: "AcmeWholesale",
-            name: "router-1",
-            type: "Network Device",
-            ip: "10.0.0.1",
-            hostname: "router1.acmewhole.local",
-            owner: "netops",
-            business_unit: "Networking",
-            criticality: "5",
-            data_sensitivity: "Low",
-        },
-    ];
+
     // @ts-ignore
     const URL = import.meta.env.VITE_API_URL;
-    const [assets, setAssets] = useState<Asset[]>(initialAssets);
+    const [assets, setAssets] = useState<Asset[]>([]);
     const [searchName, setSearchName] = useState("");
     const [filterType, setFilterType] = useState("");
     const [filterOwner, setFilterOwner] = useState("");
-    // const [filterOrg, setFilterOrg] = useState("");
     const [sortByCriticality, setSortByCriticality] = useState<
         "asc" | "desc" | ""
     >("");
@@ -139,40 +101,23 @@ export function Assets() {
             );
         }
 
-        // if (filterOrg) {
-        //   filtered = filtered.filter((a) =>
-        //     a.org.toLowerCase().includes(filterOrg.toLowerCase())
-        //   );
-        // }
-
         if (sortByCriticality === "asc") {
             filtered = [...filtered].sort(
-                (a, b) => getRiskLevel(a) - getRiskLevel(b)
+                (a, b) => getRiskScore(a) - getRiskScore(b)
             );
         } else if (sortByCriticality === "desc") {
             filtered = [...filtered].sort(
-                (a, b) => getRiskLevel(b) - getRiskLevel(a)
+                (a, b) => getRiskScore(b) - getRiskScore(a)
             );
         }
 
         return filtered;
     }, [assets, searchName, filterType, filterOwner, sortByCriticality]);
 
-    function getRiskLevel(asset: Asset): number {
-        let q_sens: number = 0;
-        let q_crit: number = Number(asset.criticality);
-        switch (asset.data_sensitivity) {
-            case "Low":
-                q_sens = 1;
-                break;
-            case "Moderate":
-                q_sens = 2;
-                break;
-            case "High":
-                q_sens = 3;
-                break;
-        }
-        return q_sens * q_crit;
+    function getRiskScore(asset: Asset): number {
+        let crit: number = Number(asset.criticality);
+        let max_sev: number = Number(Math.max(...asset.intel_events.map((ie) => Number(ie)), 0));
+        return crit * max_sev;
     }
 
     const types = Array.from(new Set(assets.map((a) => a.type)));
@@ -218,13 +163,6 @@ export function Assets() {
                         onChange={(e) => setFilterOwner(e.target.value)}
                     />
                 </Col>
-                {/* <Col md={2}>
-          <Form.Control
-            placeholder="Filter by Org"
-            value={filterOrg}
-            onChange={(e) => setFilterOrg(e.target.value)}
-          />
-        </Col> */}
                 <Col md={2}>
                     <Form.Select
                         value={sortByCriticality}
@@ -236,6 +174,15 @@ export function Assets() {
                         <option value="asc">Low → High</option>
                         <option value="desc">High → Low</option>
                     </Form.Select>
+                </Col>
+                {/* Spacer column pushes button to the right */}
+                <Col className="d-flex justify-content-end">
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate("/assets/add")}
+                    >
+                        Add Asset
+                    </Button>
                 </Col>
             </Row>
 
@@ -270,7 +217,7 @@ export function Assets() {
                             <td>{asset.business_unit}</td>
                             <td>{asset.criticality}</td>
                             <td>{asset.data_sensitivity}</td>
-                            <td>{getRiskLevel(asset)}</td>
+                            <td>{getRiskScore(asset)}</td>
                             <td>
                                 <div className="d-flex gap-2">
                                     <Button

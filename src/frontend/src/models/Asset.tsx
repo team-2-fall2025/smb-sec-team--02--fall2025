@@ -7,6 +7,12 @@ export interface Asset {
   hostname: string;
   owner: string;
   business_unit: string;
-  criticality: string;       
+  criticality: number;       
   data_sensitivity: string;  
+  intel_events: IntelEvent[];
+  risk: {
+    score: number;
+    explain: string;
+    intel_max_severity_7d: number;
+  };
 }

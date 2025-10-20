@@ -8,6 +8,7 @@ import { IntelEvents } from './pages/IntelEvents'
 import { RiskItems } from './pages/RiskItems'
 import { AssetViewPage } from './pages/AssetViewPage'
 import { AssetEditPage } from './pages/AssetEditPage'
+import { AssetCreatePage } from './pages/AssetAddPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/health" element={<Health />} />
         <Route path="/assets/:id" element={<AssetViewPage />} />
         <Route path="/assets/edit/:id" element={<AssetEditPage />} />
+        <Route path="/assets/add" element={<AssetCreatePage />} />
       </Routes>
     </Layout>
   )
