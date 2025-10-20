@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
 # app = FastAPI(lifespan=lifespan)
 
 @app.get("/generate-links")
-async def health():
+async def generate_links():
     return await generate_asset_intel_links()
 
 @app.get("/health")
