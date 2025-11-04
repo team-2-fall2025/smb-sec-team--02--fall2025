@@ -74,7 +74,7 @@ jobs:
         working-directory: src/backend
       # Run pytest for backend testing
       - name: Run pytest
-        run: PYTHONPATH=src pytest tests
+        run: PYTHONPATH=. pytest tests
         working-directory: src/backend
       # Set up Node.js for frontend linting
       - name: Set up Node.js

@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
-import app
+from ..app import app
 
 # Create a TestClient instance
-client = TestClient(app.app)
+client = TestClient(app)
 
 @pytest.mark.asyncio
 async def test_health_endpoint():
