@@ -16,7 +16,7 @@ decorator==5.2.1
 defusedxml==0.7.1
 dnspython==2.8.0
 executing==2.2.0
-fastapi==0.117.1
+fastapi==0.120.0
 filelock==3.19.1
 fonttools==4.57.0
 h11==0.16.0

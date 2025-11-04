@@ -73,9 +73,9 @@ jobs:
         run: ruff check . --ignore F401
         working-directory: src/backend
       # Run pytest for backend testing
-      # - name: Run pytest
-      #   run: pytest tests
-        # working-directory: src/backend
+      - name: Run pytest
+        run: pytest tests
+        working-directory: src/backend
       # Set up Node.js for frontend linting
       - name: Set up Node.js
         uses: actions/setup-node@v4
