@@ -7,7 +7,7 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from fastapi.params import Body
 from pydantic import BaseModel
-from agents.identify_agent import generate_asset_intel_links
+from agents.identify_agent import infer_type, crit_from_sens, generate_asset_intel_links
 from db.mongo import db
 
 
@@ -32,7 +32,14 @@ async def create_asset(asset: dict):
     """创建资产"""
     asset["created_at"] = datetime.utcnow()
     asset["updated_at"] = datetime.utcnow()
-
+    print(asset,"-----------------------------------", asset.get("type"))
+    if not asset.get("type"):
+        print("Type not provided, inferring using rules...")
+        inferred_type = infer_type(name=asset["name"], hostname=asset.get("hostname"), owner=asset.get("owner"))
+        asset["type"] = inferred_type
+    if not asset.get("criticality"):
+        print("Criticality not provided, inferring using data sensitivity...")
+        asset["criticality"] = crit_from_sens(asset.get("data_sensitivity"))
     result = await db["assets"].insert_one(asset)
     asset["_id"] = str(result.inserted_id)
     await generate_asset_intel_links()
@@ -72,10 +79,8 @@ async def edit_asset(updated_asset: dict = Body(...)):
     serialize_asset(updated_asset)
     return {"message": "Asset updated successfully", "data": updated_asset}
 
-
 @router.get("/", response_model=dict)
 async def list_assets():
-    """获取所有资产"""
     days_ago = datetime.utcnow() - timedelta(days=100)
 
     pipeline = [
@@ -118,14 +123,9 @@ async def list_assets():
         }},
     ]
     assets = [x async for x in db["assets"].aggregate(pipeline)]
-    # print(assets)
     for asset in assets:
         asset["_id"] = str(asset["_id"])
-        
-    
-    
     return {"count": len(assets), "data": assets}
-
 
 @router.get("/{asset_id}", response_model=dict)
 async def get_asset(asset_id: str):
@@ -240,12 +240,15 @@ async def import_assets(
     for i, asset in enumerate(assets):
         try:
             # 必填字段检查
-            if not asset.get("name") or not asset.get("type"):
+            if not asset.get("name"):
                 errors.append(
-                    {"row": i + 1, "error": "Missing required fields: name/type"}
+                    {"row": i + 1, "error": "Missing required fields: name"}
                 )
                 continue
-
+            if not asset.get("type"):
+                asset["type"] = infer_type(name=asset["name"], hostname=asset.get("hostname"), owner=asset.get("owner"))
+            if not asset.get("criticality"):
+                asset["criticality"] = crit_from_sens(asset.get("data_sensitivity"))
             # 设置时间戳
             asset["created_at"] = datetime.utcnow()
             asset["updated_at"] = datetime.utcnow()
