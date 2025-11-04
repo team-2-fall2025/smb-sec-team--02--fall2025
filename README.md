@@ -82,6 +82,13 @@ To initialize the database using the provided CSV datasets, run the following co
 | Initialize the database | `GET` | http://127.0.0.1:8000/api/db/seed |
 
 
+## Auto-Inference Capability
+
+The system automatically infers missing asset types and criticality levels using intelligent pattern matching. You can trigger this inference process manually via the API to populate missing fields in your existing assets.
+
+**API Endpoint:**
+```
+POST http://127.0.0.1:8000/api/identify/run
 
 
 ## 🧪 API Test Endpoints

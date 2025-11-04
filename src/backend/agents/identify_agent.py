@@ -1,7 +1,69 @@
 
+import re
 from db.mongo import db
 from datetime import datetime
 
+_HW_PAT = re.compile(r"server|srv|vm|host|router|switch|firewall|loadbalancer|nas|san|laptop|desktop|printer|device|hardware|hw|physical|machine|tablet|phone|mobile", re.I)
+_SW_PAT = re.compile(r"app|application|software|program|tool|system|platform|website|webapp|portal|cms|database|db|mysql|postgres|oracle|mongodb", re.I)
+_SERVICE_PAT = re.compile(r"api|endpoint|gateway|proxy|microservice|webservice|rest|soap|graphql|interface|connector|adapter", re.I)
+_DATA_PAT = re.compile(r"dataset|data|file|repository|archive|backup|log|audit|record|document|report|table|schema|collection|bucket|config|setting|secret|certificate", re.I)
+_USER_PAT = re.compile(r"user|account|employee|staff|personnel|admin|administrator|team|group|department|division|customer|client", re.I)
+
+# Email pattern
+_EMAIL_PAT = re.compile(r"@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+
+def infer_type(name: str | None, hostname: str | None = None, owner: str | None = None) -> str:
+    """
+    Simple asset type inference using nested if-else logic
+    """
+    if not name:
+        return "SW"
+    
+    n = name.lower()
+    h = (hostname or "").lower()
+    o = (owner or "").lower()
+    
+    # Check for email patterns first (strong indicator for User)
+    if _EMAIL_PAT.search(n) or _EMAIL_PAT.search(o):
+        return "User"
+    
+    # Check hostname patterns
+    if h:
+        if h.startswith(('api.', 'svc.', 'service.', 'ws.', 'gateway.')):
+            return "Service"
+        if h.startswith(('db.', 'database.', 'mysql.', 'postgres.')):
+            return "SW"
+        if h.startswith(('srv.', 'server.', 'vm.', 'host.')):
+            return "HW"
+        if h.startswith(('user-', 'account-', 'admin-', 'team-')):
+            return "User"
+    
+    # Check name patterns in priority order
+    if _HW_PAT.search(n):
+        return "HW"
+    
+    if _SERVICE_PAT.search(n):
+        return "Service"
+    
+    if _DATA_PAT.search(n):
+        return "Data"
+    
+    if _USER_PAT.search(n):
+        return "User"
+    
+    if _SW_PAT.search(n):
+        return "SW"
+    
+    # Default fallback
+    return "SW"
+
+def crit_from_sens(s: str | None) -> int:
+    s = (s or "Low").lower()
+    if s == "high":
+        return 5
+    if s.startswith("mod"):
+        return 3
+    return 2
 
 async def generate_asset_intel_links():
     """
@@ -72,5 +134,42 @@ async def generate_asset_intel_links():
         )
         inserted += 1
 
-    return {"message": f"Linked {inserted} asset↔intel pairs", "inserted": inserted}
+    return inserted
     
+async def infere_asset_fields():
+    """
+    Process assets table and infer missing type/criticality fields.
+    """
+    
+    # Get all assets
+    assets = [asset async for asset in db["assets"].find()]
+    
+    updated_count = 0
+    
+    # Process each asset
+    for asset in assets:
+        update_fields = {}
+        
+        # Infer type only if it doesn't exist or is empty
+        if not asset.get("type"):
+            inferred_type = infer_type(
+                name=asset.get("name"), 
+                hostname=asset.get("hostname"), 
+                owner=asset.get("owner")
+            )
+            update_fields["type"] = inferred_type
+        
+        # Infer criticality only if it doesn't exist
+        if not asset.get("criticality"):
+            inferred_criticality = crit_from_sens(asset.get("data_sensitivity"))
+            update_fields["criticality"] = inferred_criticality
+        
+        # Update asset only if we have fields to update
+        if update_fields:
+            await db["assets"].update_one(
+                {"_id": asset["_id"]},
+                {"$set": update_fields}
+            )
+            updated_count += 1
+    
+    return updated_count
