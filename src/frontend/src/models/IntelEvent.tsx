@@ -1,4 +1,4 @@
-interface IntelEvent {
+export interface IntelEvent {
   _id: string;
   source: string;
   indicator: string;

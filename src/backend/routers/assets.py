@@ -2,17 +2,20 @@ from datetime import datetime, timedelta
 import csv
 import io
 import json
+import os
 
 from bson import ObjectId
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from fastapi.params import Body
 from pydantic import BaseModel
 from agents.identify_agent import infer_type, crit_from_sens, generate_asset_intel_links
 from db.mongo import db
 
+load_dotenv()
 
 router = APIRouter(prefix="/assets", tags=["assets"])
-
+TIME_MULTIPLIER = int(os.getenv("TIME_MULTIPLIER", "1"))
 
 # ---------------------------
 # 工具函数
@@ -32,7 +35,6 @@ async def create_asset(asset: dict):
     """创建资产"""
     asset["created_at"] = datetime.utcnow()
     asset["updated_at"] = datetime.utcnow()
-    print(asset,"-----------------------------------", asset.get("type"))
     if not asset.get("type"):
         print("Type not provided, inferring using rules...")
         inferred_type = infer_type(name=asset["name"], hostname=asset.get("hostname"), owner=asset.get("owner"))
@@ -52,7 +54,6 @@ async def edit_asset(updated_asset: dict = Body(...)):
     Replace an existing asset with the provided object.
     The full asset object should be provided in the request body.
     """
-    print(updated_asset)
     try:
         _id = ObjectId(updated_asset["_id"])
     except Exception:
@@ -81,8 +82,7 @@ async def edit_asset(updated_asset: dict = Body(...)):
 
 @router.get("/", response_model=dict)
 async def list_assets():
-    days_ago = datetime.utcnow() - timedelta(days=100)
-
+    days_ago = datetime.utcnow() - timedelta(days=7 * TIME_MULTIPLIER)
     pipeline = [
         # Lookup bridge table links
         {'$lookup': {
@@ -135,7 +135,7 @@ async def get_asset(asset_id: str):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid asset id")
 
-    days_ago = datetime.now() - timedelta(days=30)
+    days_ago = datetime.now() - timedelta(days=30 * TIME_MULTIPLIER)
 
     pipeline = [
         {"$match": {"_id": _id}},
@@ -180,6 +180,7 @@ async def get_asset(asset_id: str):
     single_asset["_id"] = str(single_asset["_id"])
     for event in single_asset.get("intel_events", []):
         event["_id"] = str(event["_id"])
+        event["asset_id"] = str(event["asset_id"])
     
     
     crit = int(single_asset["criticality"])
@@ -290,7 +291,7 @@ async def get_top_risky_assets(req: TopRiskRequest = Body(...)):
     Risk score = criticality × intel_max_severity_7d
     """
     limit = req.limit
-    days_ago = datetime.now() - timedelta(days=100)
+    days_ago = datetime.now() - timedelta(days=7 * TIME_MULTIPLIER)
     
     pipeline = [
         {'$lookup': {

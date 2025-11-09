@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button, Table, Form, Row, Col, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import type { Asset } from "../models/Asset";
+import type { Asset } from "../../models/Asset";
 export function Assets() {
     const navigate = useNavigate();
 

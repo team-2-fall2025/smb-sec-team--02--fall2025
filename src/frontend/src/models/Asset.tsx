@@ -1,3 +1,4 @@
+import { IntelEvent } from "./IntelEvent";
 export interface Asset {
   _id: string;
   org: string;

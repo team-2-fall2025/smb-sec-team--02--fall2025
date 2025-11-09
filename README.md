@@ -89,8 +89,15 @@ The system automatically infers missing asset types and criticality levels using
 **API Endpoint:**
 ```
 POST http://127.0.0.1:8000/api/identify/run
+```
+## Detect Agent
 
+The Detect Agent processes raw OSINT into prioritized detections.
 
+### Run Manually
+```bash
+POST http://localhost:8000/api/detect/run
+```
 ## 🧪 API Test Endpoints
 
 | Function | Method | Test URL |

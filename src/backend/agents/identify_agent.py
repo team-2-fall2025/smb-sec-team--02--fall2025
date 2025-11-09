@@ -69,6 +69,7 @@ async def generate_asset_intel_links():
     """
     Efficiently link assets ↔ intel_events using MongoDB aggregation
     based on matching IP or hostname (depending on indicator_type).
+    Also updates intel_events with matched asset_id.
     """
 
     # ---- 1) Match IP-based intel ----
@@ -109,10 +110,11 @@ async def generate_asset_intel_links():
         }}
     ])
 
-    # ---- 3) Insert combined results into bridge table ----
+    # ---- 3) Insert combined results into bridge table and update intel_events ----
     inserted = 0
 
     async for match in ip_matches:
+        # Update asset_intel_links bridge table
         await db["asset_intel_links"].update_one(
             {"asset_id": match["asset_id"], "intel_id": match["intel_id"]},
             {"$setOnInsert": {
@@ -121,9 +123,17 @@ async def generate_asset_intel_links():
             }},
             upsert=True
         )
+        
+        # Add asset_id to the intel_event entry
+        await db["intel_events"].update_one(
+            {"_id": match["intel_id"]},
+            {"$set": {"asset_id": match["asset_id"]}}
+        )
+        
         inserted += 1
 
     async for match in host_matches:
+        # Update asset_intel_links bridge table
         await db["asset_intel_links"].update_one(
             {"asset_id": match["asset_id"], "intel_id": match["intel_id"]},
             {"$setOnInsert": {
@@ -132,6 +142,13 @@ async def generate_asset_intel_links():
             }},
             upsert=True
         )
+        
+        # Add asset_id to the intel_event entry
+        await db["intel_events"].update_one(
+            {"_id": match["intel_id"]},
+            {"$set": {"asset_id": match["asset_id"]}}
+        )
+        
         inserted += 1
 
     return inserted
