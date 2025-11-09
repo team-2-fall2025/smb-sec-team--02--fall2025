@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Form, Button, Row, Col } from "react-bootstrap";
-import { Asset } from "../models/Asset";
+import { Asset } from "../../models/Asset";
 
 export function AssetCreatePage() {
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ export function AssetCreatePage() {
     const URL = import.meta.env.VITE_API_URL;
 
     const handleChange = (field: keyof Asset, value: any) => {
-        setAsset((prev) => ({ ...prev, [field]: value }));
+        setAsset((prev: any) => ({ ...prev, [field]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +53,7 @@ export function AssetCreatePage() {
 
     return (
         <div className="container mt-4">
-            <h2>Create New Asset</h2>
+            <h3>Create New Asset</h3>
             <Card className="mt-3">
                 <Card.Body>
                     {error && <p className="text-danger">{error}</p>}

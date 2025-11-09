@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
-import type { Asset } from "../models/Asset";
+import type { Asset } from "../../models/Asset";
 
 export function AssetEditPage() {
   const { id } = useParams();

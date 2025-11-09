@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Table, Badge, Row, Col } from "react-bootstrap";
-import { Asset } from "../models/Asset";
+import { Asset } from "../../models/Asset";
 
 export function AssetViewPage() {
     const { id } = useParams(); // get asset id from route
@@ -30,6 +30,7 @@ export function AssetViewPage() {
 
     return (
         <div className="container mt-4">
+            <h3 className="mb-3 fw-bold text-primary">Assets</h3>
             {/* Header */}
             <div className="d-flex align-items-center justify-content-between mb-4">
                 <h2>{asset.name}</h2>

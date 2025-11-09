@@ -10,6 +10,11 @@ def init_indexes():
         unique=True,
         partialFilterExpression={"asset_id": {"$exists": True}, "intel_id": {"$exists": True}}
     )
+    
+    db.detections.create_index([("asset_id", 1), ("last_seen", -1)])  # Recent per asset
+    db.detections.create_index("indicator")
+    db.detections.create_index("ttp")
+    db.detections.create_index([("asset_id", 1), ("indicator", 1), ("source", 1)])  # Dedup key
 
     print("✅ MongoDB indexes initialized successfully.")
 

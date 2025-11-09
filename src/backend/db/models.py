@@ -105,20 +105,38 @@ class AssetIntelLink(BaseModel):
         "json_encoders": {ObjectId: str},
     }
 
-
-# ---------------------------
-# （可选）风险项表 (risk_items)
-# ---------------------------
 class RiskItem(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    title: str
     asset_id: PyObjectId
-    intel_event_id: Optional[PyObjectId] = None
-    risk_score: Optional[float] = None
-    description: Optional[str] = None
-    status: str = "open"
+    status: str = "Open"
+    owner: str = "unassigned"  # From asset.owner
+    due: datetime
+    score: int  # e.g., asset.criticality * sev
+    hit_count: int = 1
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {ObjectId: str},
+    }
 
+class Detection(BaseModel):
+    id: Optional[PyObjectId] = Field(default=None, alias="_id", coerce_types=True)
+    asset_id: PyObjectId = Field(..., coerce_types=True)
+    source: str  # e.g., "shodan"
+    indicator: str  # e.g., "203.0.113.10"
+    ttp: List[str] = []  # e.g., ["T1190"]
+    severity: int  # 1-5
+    confidence: int  # 0-100
+    first_seen: datetime
+    last_seen: datetime
+    hit_count: int = 1
+    analyst_note: str  # ≤240 chars
+    raw_ref: dict  # e.g., {"intel_ids": ["id1"]}
+    
     model_config = {
         "populate_by_name": True,
         "arbitrary_types_allowed": True,
