@@ -11,7 +11,7 @@ from db.mongo import db
 
 load_dotenv()
 
-router = APIRouter(prefix="/detect", tags=["detect"])
+router = APIRouter(prefix="/api/detect", tags=["detect"])
 TIME_MULTIPLIER = int(os.getenv("TIME_MULTIPLIER", "1"))
 
 @router.get("/ping")
