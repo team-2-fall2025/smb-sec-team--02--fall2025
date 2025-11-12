@@ -4,6 +4,7 @@ from bson import ObjectId
 from .sop_generator import build_sop_for_control
 from .coverage import compute_csf_coverage
 from .residual_risk import update_residual_risk_for_assets
+from bson.errors import InvalidId
 
 # ---- Normalizers (add these above RULES) ----
 def safe_int(v, default=0):
@@ -133,8 +134,11 @@ async def _load_recent_detections(db, days: int = 7) -> Dict[ObjectId, List[Dict
     async for d in db.detections.find({"created_at": {"$gte": since}}):
         aid = d.get("asset_id")
         if isinstance(aid, str):
-            try: aid = ObjectId(aid)
-            except: pass
+            try:
+                aid = ObjectId(aid)
+            except InvalidId:
+                # Keep original string key if not a valid ObjectId (matches prior behavior)
+                pass
         det_map.setdefault(aid, []).append(d)
     return det_map
 
@@ -211,9 +215,11 @@ async def run_policy_builder(db) -> Dict[str, Any]:
 
     for asset in assets:
         a_id = asset.get("_id")
-        if isinstance(a_id, str):
-            try: a_id = ObjectId(a_id)
-            except: continue
+        try:
+            a_id = ObjectId(a_id)
+        except InvalidId:
+            # Previous logic skipped this asset on invalid ObjectId
+            continue
 
         recent_dets = det_map.get(a_id, [])
         for rule in RULES:

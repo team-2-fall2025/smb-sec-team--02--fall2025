@@ -1,6 +1,7 @@
 from typing import Dict, Any, List
 from datetime import datetime
 from bson import ObjectId
+from bson.errors import InvalidId
 
 def _clamp(x, lo=0.0, hi=1.0): return max(lo, min(hi, x))
 
@@ -26,8 +27,11 @@ async def update_residual_risk_for_assets(db, weights: Dict[str, float]) -> int:
     for a in assets:
         aid = a.get("_id")
         if isinstance(aid, str):
-            try: aid = ObjectId(aid)
-            except: continue
+            try:
+                aid = ObjectId(aid)
+            except InvalidId:
+                # Previous logic skipped this asset on invalid ObjectId
+                continue
         crit = int(a.get("criticality", 1))
         sev = int(a.get("intel_max_sev_7d", 0))
         inherent = crit * sev
