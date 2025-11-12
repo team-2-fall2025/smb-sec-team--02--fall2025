@@ -1,0 +1,32 @@
+[
+  {
+    "family": "IA",
+    "control_id": "IA-2",
+    "title": "Identification and Authentication (Users)",
+    "csf_function": "Protect",
+    "csf_category": "PR.AC",
+    "subcategory": "PR.AC-1",
+    "implementation_status": "Proposed",
+    "evidence_required": ["IdP policy screenshot","VPN gateway config"]
+  },
+  {
+    "family": "SC",
+    "control_id": "SC-13",
+    "title": "Cryptographic Protection",
+    "csf_function": "Protect",
+    "csf_category": "PR.DS",
+    "subcategory": "PR.DS-1",
+    "implementation_status": "Proposed",
+    "evidence_required": ["KMS policy","TLS config dump"]
+  },
+  {
+    "family": "SC",
+    "control_id": "SC-28",
+    "title": "Protection of Information at Rest",
+    "csf_function": "Protect",
+    "csf_category": "PR.DS",
+    "subcategory": "PR.DS-1",
+    "implementation_status": "Proposed",
+    "evidence_required": ["Disk encryption policy","Cloud storage settings"]
+  }
+]
