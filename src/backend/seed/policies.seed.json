@@ -1,0 +1,32 @@
+[
+  {
+    "_id": { "$oid": "671f000000000000000000a1" },
+    "name": "Baseline Access Control",
+    "description": "Organization-wide baseline for account lifecycle, MFA, and admin access.",
+    "scope": "org",
+    "status": "Active",
+    "version": "1.0.0",
+    "created_at": { "$date": "2025-10-20T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-20T00:00:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000a2" },
+    "name": "Data Protection Standard",
+    "description": "Encryption in transit and at rest for PHI/PII-bearing systems.",
+    "scope": "org",
+    "status": "Active",
+    "version": "1.0.0",
+    "created_at": { "$date": "2025-10-20T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-20T00:00:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000a3" },
+    "name": "Maintenance & Configuration",
+    "description": "Configuration baselines, integrity checks, and controlled maintenance windows.",
+    "scope": "org",
+    "status": "Draft",
+    "version": "0.9.0",
+    "created_at": { "$date": "2025-10-20T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-20T00:00:00Z" }
+  }
+]

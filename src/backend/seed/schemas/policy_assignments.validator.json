@@ -1,0 +1,14 @@
+{
+  "bsonType": "object",
+  "required": ["asset_id", "control_id", "status", "created_at", "updated_at"],
+  "properties": {
+    "asset_id": { "bsonType": "objectId" },
+    "control_id": { "bsonType": "string" },
+    "status": { "enum": ["Proposed", "In-Progress", "Implemented", "Declined"] },
+    "owner": { "bsonType": ["string", "null"] },
+    "due_date": { "bsonType": ["date", "null"] },
+    "last_verified_at": { "bsonType": ["date", "null"] },
+    "created_at": { "bsonType": "date" },
+    "updated_at": { "bsonType": "date" }
+  }
+}

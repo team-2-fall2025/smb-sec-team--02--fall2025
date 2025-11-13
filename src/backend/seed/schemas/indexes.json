@@ -1,0 +1,29 @@
+{
+  "controls": [
+    { "keys": { "control_id": 1 }, "options": { "unique": true } },
+    { "keys": { "family": 1 } },
+    { "keys": { "csf_category": 1 } },
+    { "keys": { "csf_category": 1, "implementation_status": 1 } }
+  ],
+  "control_mappings": [
+    { "keys": { "control_id": 1 } },
+    { "keys": { "csf_ref": 1 } }
+  ],
+  "policies": [
+    { "keys": { "name": 1, "version": 1 }, "options": { "unique": true } },
+    { "keys": { "status": 1 } },
+    { "keys": { "scope": 1 } }
+  ],
+  "policy_assignments": [
+    { "keys": { "asset_id": 1 } },
+    { "keys": { "control_id": 1 } },
+    { "keys": { "status": 1 } },
+    { "keys": { "owner": 1 } },
+    { "keys": { "asset_id": 1, "control_id": 1 }, "options": { "unique": true } }
+  ],
+  "control_evidence": [
+    { "keys": { "control_id": 1 } },
+    { "keys": { "asset_id": 1 } },
+    { "keys": { "submitted_at": -1 } }
+  ]
+}

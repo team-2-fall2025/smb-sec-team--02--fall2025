@@ -1,0 +1,35 @@
+[
+  {
+    "_id": { "$oid": "671f000000000000000000c1" },
+    "control_id": "IA-2",
+    "asset_id": { "$oid": "66ffabcd0000000000000101" },
+    "evidence_type": "screenshot",
+    "location": "/evidence/ia2/idp_mfa_policy_screenshot.png",
+    "hash": "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15",
+    "submitted_by": "alice@example.com",
+    "submitted_at": { "$date": "2025-10-25T12:05:00Z" },
+    "created_at": { "$date": "2025-10-25T12:05:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000c2" },
+    "control_id": "SC-13",
+    "asset_id": { "$oid": "66ffabcd0000000000000102" },
+    "evidence_type": "config",
+    "location": "/evidence/sc13/kms_key_policy.json",
+    "hash": null,
+    "submitted_by": "bob@example.com",
+    "submitted_at": { "$date": "2025-10-24T17:20:00Z" },
+    "created_at": { "$date": "2025-10-24T17:20:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000c3" },
+    "control_id": "SC-28",
+    "asset_id": { "$oid": "66ffabcd0000000000000101" },
+    "evidence_type": "log_extract",
+    "location": "/evidence/sc28/ebs_encryption_enabled.log",
+    "hash": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "submitted_by": "carol@example.com",
+    "submitted_at": { "$date": "2025-10-21T10:00:00Z" },
+    "created_at": { "$date": "2025-10-21T10:00:00Z" }
+  }
+]

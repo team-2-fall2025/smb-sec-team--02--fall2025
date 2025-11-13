@@ -1,0 +1,13 @@
+{
+  "bsonType": "object",
+  "required": ["name", "scope", "status", "version", "created_at", "updated_at"],
+  "properties": {
+    "name": { "bsonType": "string" },
+    "description": { "bsonType": "string" },
+    "scope": { "bsonType": "string", "description": "org/BU/tags" },
+    "status": { "enum": ["Draft", "Active", "Deprecated"] },
+    "version": { "bsonType": "string" },
+    "created_at": { "bsonType": "date" },
+    "updated_at": { "bsonType": "date" }
+  }
+}

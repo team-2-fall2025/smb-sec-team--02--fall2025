@@ -1,0 +1,35 @@
+[
+  {
+    "_id": { "$oid": "671f000000000000000000b1" },
+    "asset_id": { "$oid": "66ffabcd0000000000000101" },
+    "control_id": "IA-2",
+    "status": "In-Progress",
+    "owner": "NetOps",
+    "due_date": { "$date": "2025-11-30T23:59:59Z" },
+    "last_verified_at": { "$date": "2025-10-25T12:00:00Z" },
+    "created_at": { "$date": "2025-10-20T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-25T12:00:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000b2" },
+    "asset_id": { "$oid": "66ffabcd0000000000000102" },
+    "control_id": "SC-13",
+    "status": "Proposed",
+    "owner": "Security",
+    "due_date": { "$date": "2025-12-15T23:59:59Z" },
+    "last_verified_at": null,
+    "created_at": { "$date": "2025-10-20T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-20T00:00:00Z" }
+  },
+  {
+    "_id": { "$oid": "671f000000000000000000b3" },
+    "asset_id": { "$oid": "66ffabcd0000000000000101" },
+    "control_id": "SC-28",
+    "status": "Implemented",
+    "owner": "Infra",
+    "due_date": { "$date": "2025-10-10T23:59:59Z" },
+    "last_verified_at": { "$date": "2025-10-21T09:30:00Z" },
+    "created_at": { "$date": "2025-10-05T00:00:00Z" },
+    "updated_at": { "$date": "2025-10-21T09:30:00Z" }
+  }
+]
