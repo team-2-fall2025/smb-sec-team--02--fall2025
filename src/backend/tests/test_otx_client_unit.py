@@ -32,7 +32,7 @@ def test_fetch_ip_general_handles_rate_limit_then_success():
     success.json.return_value = {"indicator": "1.2.3.4", "pulse_info": {}}
 
     with patch("requests.get", side_effect=[rate_limited, success]) as mock_get:
-        with patch("time.sleep") as mock_sleep:
+        with patch("time.sleep"):
             result = client.fetch_ip_general("1.2.3.4")
 
     assert result == {"indicator": "1.2.3.4", "pulse_info": {}}
