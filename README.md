@@ -98,14 +98,6 @@ The Detect Agent processes raw OSINT into prioritized detections.
 ```bash
 POST http://localhost:8000/api/detect/run
 ```
-## Protect Agent
-```bash
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/protect/run" -Method Post
-```
-Create and initialize table
-```bash
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/protect/create" -Method Post
-```
 
 ## 🧪 API Test Endpoints
 
@@ -142,8 +134,22 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/protect/create" -Method Post
 
 ---
 
+### 3. CSF → 800-53 Mapping & Coverage Metrics
+API Endpoint: `http://localhost:8000/run/csf-metrics`  
+Description: Generates CSF function/category/subcategory mappings and computes 800-53 coverage metrics across all controls.
+
+### 4. SOP Generator
+API Endpoint: `http://localhost:8000/run/sop-generate`  
+Description: Produces short implementation SOPs for each recommended control, including owners, cadence, evidence requirements, and success criteria.
+
+---
+
+
+
 ## 💡 Notes
 - If you encounter a connection error, ensure the MongoDB service is running correctly.  
 - If you change the database name or port, make sure to update your project configuration file (such as `.env` or `config.js`).
 
 ---
+
+
