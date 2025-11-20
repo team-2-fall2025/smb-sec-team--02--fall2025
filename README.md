@@ -98,6 +98,15 @@ The Detect Agent processes raw OSINT into prioritized detections.
 ```bash
 POST http://localhost:8000/api/detect/run
 ```
+## Protect Agent
+```bash
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/protect/run" -Method Post
+```
+Create and initialize table
+```bash
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/protect/create" -Method Post
+```
+
 ## 🧪 API Test Endpoints
 
 | Function | Method | Test URL |
