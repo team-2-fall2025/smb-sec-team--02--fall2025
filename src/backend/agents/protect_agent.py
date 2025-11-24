@@ -83,7 +83,6 @@ async def run_protect_agent() -> Dict[str, Any]:
 
     for asset in high_crit_assets:
         asset_tags = asset.get("tags", [])
-        asset_id_str = str(asset["_id"])
 
         for condition_fn, control_ids in SMB_RULES:
             # Some conditions need extra data
