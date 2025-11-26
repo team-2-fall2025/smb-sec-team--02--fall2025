@@ -90,13 +90,6 @@ async def respond_run():
 # You can use POST here; it's fine for your project.
 @router.post("/incidents/{incident_id}/status")
 async def change_incident_status(incident_id: str):
-    from motor.motor_asyncio import AsyncIOMotorClient
-    import os
-
-    MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
-    client = AsyncIOMotorClient(MONGO_URL)
-    db = client["smbsec"]
-
     """
     Change incident status with state-machine enforcement.
 
