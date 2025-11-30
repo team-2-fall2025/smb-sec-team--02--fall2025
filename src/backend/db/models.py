@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Literal, Optional, List, Dict, Any
 
 from bson import ObjectId
 from pydantic import BaseModel, Field, GetCoreSchemaHandler, GetJsonSchemaHandler
@@ -41,6 +41,13 @@ class PyObjectId(ObjectId):
         json_schema.update(type="string")
         return json_schema
 
+class ApplicabilityRule(BaseModel):
+    """Flexible JSON logic or tag-based rule"""
+    tags: Optional[List[str]] = None
+    criticality_gte: Optional[int] = None
+    environment: Optional[List[str]] = None
+    data_classification: Optional[List[str]] = None
+    custom: Optional[Dict[str, Any]] = None  # For JSON Logic expressions
 
 # ---------------------------
 # 资产表 (assets)
@@ -142,3 +149,130 @@ class Detection(BaseModel):
         "arbitrary_types_allowed": True,
         "json_encoders": {ObjectId: str},
     }
+    
+class Control(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    family: str = Field(..., example="AC")  # e.g., AC, AU, SC, CM
+    control_id: str = Field(..., example="AC-2")  # e.g., AC-2, IA-5(1)
+    title: str = Field(..., example="Account Management")
+    csf_function: Literal[
+        "Identify", "Protect", "Detect", "Respond", "Recover", "Govern"
+    ]
+    csf_category: str = Field(..., example="PR.AC")  # e.g., PR.AC, PR.DS
+    subcategory: Optional[str] = Field(None, example="PR.AC-1")
+    applicability_rule: ApplicabilityRule
+    implementation_status: Literal["Proposed", "In-Progress", "Implemented", "Declined"] = "Proposed"
+    evidence_required: List[str] = Field(
+        default_factory=list,
+        example=["Configuration screenshot", "Audit log extract"]
+    )
+    sop_id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")  # References SOP document
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
+# =============================================================================
+# 2. Policies (optional this week – container for bundles)
+# =============================================================================
+class Policy(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    name: str = Field(..., example="SMB Baseline Security Policy")
+    description: Optional[str] = None
+    scope: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="org, BU, tags, etc.",
+        example={"org_id": "org_123", "tags": ["internet-facing"]}
+    )
+    status: Literal["Draft", "Active", "Archived"] = "Draft"
+    version: str = Field(default="1.0.0")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
+# =============================================================================
+# 3. Control Mappings (CSF → NIST 800-53)
+# =============================================================================
+class ControlMapping(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    control_id: str = Field(..., example="IA-2")  # Links to Control.control_id
+    csf_ref: str = Field(
+        ..., example="Protect/PR.AC-1", description="function/category/subcategory"
+    )
+    references: List[str] = Field(
+        default_factory=list,
+        example=["CIS 1.4", "ISO 27001 A.9.2.1"]
+    )
+    rationale: str = Field(..., example="Enforces strong authentication for privileged access")
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
+# =============================================================================
+# 4. Policy Assignments (which assets have which controls)
+# =============================================================================
+class PolicyAssignment(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    asset_id: PyObjectId = Field(...)
+    control_id: str = Field(..., example="IA-2")  # Denormalized for fast queries
+    policy_id: Optional[PyObjectId] = None  # Optional link to bundle
+    status: Literal["Proposed", "In-Progress", "Implemented", "Not Applicable"] = "Proposed"
+    owner: str = Field(..., example="jane.doe@company.com")
+    due_date: Optional[datetime] = None
+    last_verified_at: Optional[datetime] = None
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
+# =============================================================================
+# 5. Control Evidence (metadata only this week)
+# =============================================================================
+class ControlEvidence(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    control_id: str = Field(..., example="IA-2")
+    asset_id: Optional[PyObjectId] = None  # Nullable – can be org-wide
+    evidence_type: Literal[
+        "screenshot", "config", "log_extract", "policy_doc", "test_result", "other"
+    ]
+    location: str = Field(
+        ..., example="/evidence/550e8400-e29b-41d4-a716-446655440000"
+    )
+    hash: Optional[str] = None  # SHA256 for integrity later
+    submitted_by: str = Field(..., example="john.doe@company.com")
+    submitted_at: datetime = Field(default_factory=datetime.utcnow)
+
+    notes: Optional[str] = None
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
+# =============================================================================
+# Optional: SOP Document Model (if stored separately)
+# =============================================================================
+class SOP(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    control_id: str
+    title: str
+    markdown_content: str  # Full SOP in Markdown
+    version: str = "1.0"
+    owner: str
+    cadence: str  # e.g., "One-time + quarterly verification"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}

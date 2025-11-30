@@ -98,6 +98,15 @@ The Detect Agent processes raw OSINT into prioritized detections.
 ```bash
 POST http://localhost:8000/api/detect/run
 ```
+
+## Protect Agent
+
+Generate recommended controls and SOPs:
+
+```bash
+POST http://localhost:8000/api/protect/run
+```
+
 ## 🧪 API Test Endpoints
 
 | Function | Method | Test URL |

@@ -24,3 +24,13 @@ async def stats():
         "intel_events": intel_events,
         "risk_items": risk_items
     }
+
+# routes/intel.py
+@router.get("/events")
+async def list_intel_events():
+    events = await db.intel_events.find().sort("created_at", -1).to_list(length=None)
+    for e in events:
+        e["_id"] = str(e["_id"])
+        e["asset_id"] = str(e["asset_id"])
+        e["created_at"] = e["created_at"]
+    return events

@@ -1,11 +1,12 @@
+// src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { format, subDays } from "date-fns";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 export function Dashboard() {
-
     // @ts-ignore
     const URL = import.meta.env.VITE_API_URL;
+
     const [stats, setStats] = useState({ assets: 0, intel_events: 0, risk_items: 0 });
     const [health, setHealth] = useState<string | null>(null);
     const [version, setVersion] = useState({ version: "unknown" });
@@ -13,78 +14,73 @@ export function Dashboard() {
     const [detections24h, setDetections24h] = useState(0);
     const [detectionsTrend, setDetectionsTrend] = useState<any[]>([]);
     const [topHighSevDetections, setTopHighSevDetections] = useState<any[]>([]);
+    
+    // NEW: CSF Coverage state
+    const [csfCoverage, setCsfCoverage] = useState({
+        Identify: 0,
+        Protect: 0,
+        Detect: 0,
+        Respond: 0,
+        Recover: 0,
+        Govern: 0
+    });
 
     useEffect(() => {
-        // 1. Stats
-        fetch(`${URL}/api/stats`)
-            .then((r) => r.json())
-            .then(setStats)
-            .catch((err) => console.error("Stats error:", err));
+        // Existing fetches...
+        fetch(`${URL}/api/stats`).then(r => r.json()).then(setStats);
+        fetch(`${URL}/health`).then(r => r.json()).then(d => setHealth(d.status));
+        fetch(`${URL}/version`).then(r => r.json()).then(setVersion);
 
-        // 2. Health
-        fetch(`${URL}/health`)
-            .then((r) => r.json())
-            .then((data) => setHealth(data.status))
-            .catch((err) => console.error("Health error:", err));
+        fetch(`${URL}/api/assets/top-risky`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit: 5 }) })
+            .then(r => r.json()).then(d => setTopAssets(d.data || []));
 
-        // 3. Version
-        fetch(`${URL}/version`)
-            .then((r) => r.json())
-            .then(setVersion)
-            .catch((err) => console.error("Version error:", err));
-
-        // 4. Top 5 Risky Assets
-        fetch(`${URL}/api/assets/top-risky`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ limit: 5 }),
-        })
-            .then((r) => r.json())
-            .then((data) => setTopAssets(data.data || []))
-            .catch((err) => console.error("Top assets error:", err));
-
-        // 5. Detections (24h)
         const oneDayAgo = subDays(new Date(), 1).toISOString();
-        fetch(`${URL}/api/detect/lastDay?last_seen_gte=${oneDayAgo}`)
-            .then((r) => r.json())
-            .then((data) => setDetections24h(data || 0))
-            .catch((err) => console.error("24h detections error:", err));
+        fetch(`${URL}/api/detect/lastDay?last_seen_gte=${oneDayAgo}`).then(r => r.json()).then(setDetections24h);
+        fetch(`${URL}/api/detect/trend?days=7`).then(r => r.json()).then(d => {
+            const trend = (d.data || d).map((x: any) => ({ day: format(new Date(x.date), "MMM dd"), count: x.count }));
+            setDetectionsTrend(trend);
+        });
+        fetch(`${URL}/api/detect/high-sev?min_severity=3&limit=5`).then(r => r.json()).then(d => setTopHighSevDetections(d.data || d));
 
-        // 6. Detections Trend (7 days)
-        fetch(`${URL}/api/detect/trend?days=7`)
-            .then((r) => r.json())
-            .then((data) => {
-                const trend = (data.data || data).map((d: any) => ({
-                    day: format(new Date(d.date), "MMM dd"),
-                    count: d.count,
-                }));
-                setDetectionsTrend(trend);
+        // NEW: Fetch CSF Coverage
+        fetch(`${URL}/api/protect/coverage`)
+            .then(r => r.json())
+            .then(data => {
+                setCsfCoverage({
+                    Identify: Math.round((data["CSF.Identify"] || 0) * 100),
+                    Protect: Math.round((data["CSF.Protect"] || 0) * 100),
+                    Detect: Math.round((data["CSF.Detect"] || 0) * 100),
+                    Respond: Math.round((data["CSF.Respond"] || 0) * 100),
+                    Recover: Math.round((data["CSF.Recover"] || 0) * 100),
+                    Govern: Math.round((data["CSF.Govern"] || 0) * 100),
+                });
             })
-            .catch((err) => console.error("Trend error:", err));
-
-        // 7. Top 5 High-Severity Detections
-        fetch(`${URL}/api/detect/high-sev?min_severity=3&limit=5`)
-            .then((r) => r.json())
-            .then((data) => setTopHighSevDetections(data.data || data))
-            .catch((err) => console.error("High-sev error:", err));
+            .catch(() => console.error("Failed to load CSF coverage"));
     }, [URL]);
+
+    // Bar chart data for CSF functions
+    const coverageData = [
+        { function: "Identify", coverage: csfCoverage.Identify },
+        { function: "Protect", coverage: csfCoverage.Protect },
+        { function: "Detect", coverage: csfCoverage.Detect },
+        { function: "Respond", coverage: csfCoverage.Respond },
+        { function: "Recover", coverage: csfCoverage.Recover },
+        { function: "Govern", coverage: csfCoverage.Govern },
+    ];
+
+    const colors = ["#6c757d", "#007bff", "#28a745", "#fd7e14", "#dc3545", "#6f42c1"];
 
     return (
         <div className="container-fluid">
             <h1 className="mb-4">Security Dashboard</h1>
 
             <div className="mb-4">
-                <p>
-                    Health:{" "}
-                    <span className={health === "ok" ? "text-success" : "text-danger"}>
-                        {health}
-                    </span>
-                </p>
+                <p>Health: <span className={health === "ok" ? "text-success" : "text-danger"}>{health}</span></p>
                 <p>Version: {version.version}</p>
             </div>
 
             <div className="row g-3">
-                {/* 1. Assets */}
+                {/* Existing Cards */}
                 <div className="col-md-3">
                     <div className="card shadow-sm h-100">
                         <div className="card-body text-center">
@@ -93,8 +89,6 @@ export function Dashboard() {
                         </div>
                     </div>
                 </div>
-
-                {/* 2. Intel Events */}
                 <div className="col-md-3">
                     <div className="card shadow-sm h-100">
                         <div className="card-body text-center">
@@ -103,8 +97,6 @@ export function Dashboard() {
                         </div>
                     </div>
                 </div>
-
-                {/* 3. Risk Items */}
                 <div className="col-md-3">
                     <div className="card shadow-sm h-100">
                         <div className="card-body text-center">
@@ -113,8 +105,6 @@ export function Dashboard() {
                         </div>
                     </div>
                 </div>
-
-                {/* 4. Detections (24h) + Trendline */}
                 <div className="col-md-3">
                     <div className="card shadow-sm h-100">
                         <div className="card-body">
@@ -135,7 +125,37 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                {/* 5. Top 5 Risky Assets */}
+                {/* NEW: CSF Coverage Widget */}
+                <div className="col-md-6">
+                    <div className="card shadow-sm h-100">
+                        <div className="card-body">
+                            <h5 className="card-title">
+                                CSF Coverage 
+                                <span className="float-end text-success fw-bold">{csfCoverage.Protect}% Protect</span>
+                            </h5>
+                            <div style={{ height: 200 }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={coverageData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="function" tick={{ fontSize: 11 }} />
+                                        <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+                                        <Tooltip formatter={(value: number) => `${value}%`} />
+                                        <Bar dataKey="coverage" radius={[8, 8, 0, 0]}>
+                                            {coverageData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={colors[index]} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <small className="text-muted d-block text-center mt-2">
+                                Based on implemented and in-progress controls
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Top Risky Assets */}
                 <div className="col-md-6">
                     <div className="card shadow-sm">
                         <div className="card-body">
@@ -166,7 +186,7 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                {/* 6. Top 5 High-Severity Detections */}
+                {/* Top High-Severity Detections */}
                 <div className="col-md-6">
                     <div className="card shadow-sm">
                         <div className="card-body">
@@ -185,9 +205,7 @@ export function Dashboard() {
                                     <tbody>
                                         {topHighSevDetections.map((det) => (
                                             <tr key={det._id}>
-                                                <td>
-                                                    <code className="small">{det.indicator}</code>
-                                                </td>
+                                                <td><code className="small">{det.indicator}</code></td>
                                                 <td>
                                                     <span className={`badge bg-${det.severity >= 5 ? 'danger' : 'warning'}`}>
                                                         {det.severity}

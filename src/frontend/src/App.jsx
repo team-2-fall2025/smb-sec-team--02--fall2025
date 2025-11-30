@@ -11,6 +11,8 @@ import { AssetEditPage } from './pages/Asset/AssetEditPage'
 import { AssetCreatePage } from './pages/Asset/AssetAddPage'
 import { DetectionList } from './pages/Detection/DetectionList'
 import { DetectionViewPage } from './pages/Detection/DetectionViewPage'
+import { ControlsList } from './pages/Protection/ControlsList'
+import { ControlDetailPage } from './pages/Protection/ControlDetailPage'
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
         <Route path="/assets/add" element={<AssetCreatePage />} />
         <Route path="/detections" element={<DetectionList />} />
         <Route path="/detection/:id" element={<DetectionViewPage />} />
+        <Route path="/controls" element={<ControlsList />} />
+        <Route path="/controls/:control_id" element={<ControlDetailPage />} />
       </Routes>
     </Layout>
   )
