@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 from agents.identify_agent import generate_asset_intel_links
 from db.init_db import init_indexes
 from routers import assets
-from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern
+from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern, sops, csf
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -49,6 +50,18 @@ def health():
 @app.get("/version")
 def version():
     return {"version": "Week2-Skeleton"}
+
+
+
+@app.get("/run/sop-generate")
+def run_sop():
+    result = sops.run_sop_generation()
+    return result
+
+@app.get("/run/csf-metrics")
+def run_csf_metrics():
+    result = csf.run_csf_mapping_and_metrics()
+    return result
 
 # 注册路由
 app.include_router(stats.router, prefix="/api")

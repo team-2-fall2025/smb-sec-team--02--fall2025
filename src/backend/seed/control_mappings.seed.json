@@ -1,0 +1,5 @@
+[
+  { "control_id": "IA-2", "csf_ref": "Protect/PR.AC/PR.AC-1", "references": ["CIS 6.3"], "rationale": "MFA for remote access & admin portals" },
+  { "control_id": "SC-13", "csf_ref": "Protect/PR.DS/PR.DS-1", "references": ["CIS 3.11"] },
+  { "control_id": "SC-28", "csf_ref": "Protect/PR.DS/PR.DS-1", "references": ["CIS 3.12"] }
+]
