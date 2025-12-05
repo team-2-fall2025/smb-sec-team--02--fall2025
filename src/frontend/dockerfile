@@ -4,8 +4,8 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Set build-time argument (hardcoded as per your .env; available during Vite build)
-ARG VITE_API_URL="http://localhost:8000"
+# Define build arg (no default to avoid hardcoding; passed via compose)
+ARG VITE_API_URL
 
 # Copy package files and install dependencies
 COPY package*.json .

@@ -4,13 +4,6 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Set environment variables (hardcoded as per your .env)
-ENV MONGO_URI="mongodb://localhost:27017" \
-    DB_NAME="smbsec" \
-    TIME_MULTIPLIER="300" \
-    TEAMS_WEBHOOK_URL="https://mailmissouri.webhook.office.com/webhookb2/4d9a256b-036a-417a-b033-70ba4ad92b43@e3fefdbe-f7e9-401b-a51a-355e01b05a89/IncomingWebhook/834ae05a628344658e4634bf6a327a65/ec3aeee6-6b28-4247-89ae-e64ebc6be5df/V2832ghJCLgFerfQrEZmfnioIXYshc2iL7FIhcuwX7RUM1" \
-    FRONTEND_URL="http://localhost:5173"
-
 # Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

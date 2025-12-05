@@ -4,9 +4,9 @@ services:
   mongo:
     image: mongo:latest
     ports:
-      - "27017:27017"  # Expose MongoDB port to host (optional; remove if not needed for direct access)
+      - "27017:27017"  # Expose MongoDB port to host (optional)
     volumes:
-      - mongo-data:/data/db  # Persist data
+      - mongo-data:/data/db
 
   backend:
     build:
@@ -14,21 +14,23 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app  # For development; remove for production
+      - ./backend:/app  # For development
+    env_file:
+      - backend/.env  # Loads all vars from here at runtime
     environment:
-      - MONGO_URI=mongodb://mongo:27017  # Override to use the mongo service
-      - FRONTEND_URL=http://localhost:5137  # Override to match host frontend URL (e.g., for CORS)
-      - PYTHONUNBUFFERED=1
+      - PYTHONUNBUFFERED=1  # Non-sensitive override
     depends_on:
-      - mongo  # Ensure MongoDB starts first
+      - mongo
 
   frontend:
     build:
       context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL}  # Pulls from host env (set via export or .env)
     ports:
       - "5137:80"
     depends_on:
       - backend
 
 volumes:
-  mongo-data:  # Named volume for MongoDB persistence
+  mongo-data:
