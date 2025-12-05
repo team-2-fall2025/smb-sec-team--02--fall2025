@@ -99,6 +99,17 @@ The Detect Agent processes raw OSINT into prioritized detections.
 POST http://localhost:8000/api/detect/run
 ```
 
+## Respond agent
+Create and initialize tables
+```bash
+http://127.0.0.1:8000/api/respond/create
+```
+For Transition validator enforces (Example)
+```bash
+Incident: 693235f9cf2ab487eda84a71
+Eradication -> Eradication
+```
+
 ## 🧪 API Test Endpoints
 
 | Function | Method | Test URL |
