@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"  # Expose MongoDB port to host (optional)
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # For development
+    env_file:
+      - backend/.env  # Loads all vars from here at runtime
+    environment:
+      - PYTHONUNBUFFERED=1  # Non-sensitive override
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL}  # Pulls from host env (set via export or .env)
+    ports:
+      - "5137:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
