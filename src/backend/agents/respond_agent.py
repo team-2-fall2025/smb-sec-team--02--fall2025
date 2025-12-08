@@ -4,6 +4,91 @@ from typing import Dict, Any, List, Optional
 from bson import ObjectId
 from db.mongo import db  # this should be your AsyncIOMotorDatabase
 
+import requests
+
+SLACK_WEBHOOK_URL = "XXXX"  # 你的 webhook
+
+
+
+incident_evidence_col = db["incident_evidence"]
+
+
+async def add_incident_evidence(incident_id: ObjectId, payload: Dict[str, Any]):
+    """
+    Add metadata-only evidence entry.
+    File upload is optional; metadata is required.
+    """
+    now = datetime.utcnow()
+
+    # Required fields
+    required = ["type", "location", "submitted_by"]
+    for f in required:
+        if f not in payload:
+            raise ValueError(f"Missing required field: {f}")
+
+    doc = {
+        "incident_id": incident_id,
+        "type": payload["type"],
+        "location": payload["location"],
+        "hash": payload.get("hash"),
+        "submitted_by": payload["submitted_by"],
+        "submitted_at": now,
+        "chain_of_custody": payload.get("chain_of_custody", []),
+    }
+
+    result = await incident_evidence_col.insert_one(doc)
+
+    # timeline event
+    await incident_timeline_col.insert_one(
+        {
+            "incident_id": incident_id,
+            "ts": now,
+            "actor": payload["submitted_by"],
+            "event_type": "evidence",
+            "detail": {
+                "type": payload["type"],
+                "location": payload["location"],
+            },
+        }
+    )
+
+    return result.inserted_id
+
+
+
+async def send_incident_notification(incident: Dict[str, Any]):
+    """
+    Send Slack/Webhook alert and log a comms event to the timeline.
+    """
+    message = (
+        f"[{incident.get('severity')}] New Incident {incident.get('_id')} "
+        f"Asset: {incident.get('primary_asset_id')} "
+        f"Phase: {incident.get('status')} "
+        f"SLA Due: {incident.get('sla_due_at')}"
+    )
+
+    # Send Slack message
+    try:
+        requests.post(SLACK_WEBHOOK_URL, json={"text": message})
+    except Exception as e:
+        print("Slack send failed:", e)
+
+    # Store comms event in timeline
+    await incident_timeline_col.insert_one(
+        {
+            "incident_id": incident["_id"],
+            "ts": datetime.utcnow(),
+            "actor": "system",
+            "event_type": "comms",
+            "detail": {
+                "message": message,
+                "channel": "slack",
+            },
+        }
+    )
+
+
+
 # ---- Collections (Motor) ----
 incidents_col = db["incidents"]
 incident_tasks_col = db["incident_tasks"]
@@ -165,6 +250,8 @@ async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:
     )
 
     incident_doc: Dict[str, Any] = {
+        "asset_refs": [det.get("asset_id")] if det.get("asset_id") else [],
+
         "title": title,
         "severity": severity,
         "status": "Triage",
@@ -176,11 +263,11 @@ async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:
         "sla_status": sla_status,
         "primary_asset_id": det.get("asset_id"),
         "detection_refs": [det["_id"]],
-        "risk_item_refs": [],
         "summary": "",
         "root_cause": "",
         "lessons_learned": "",
         "tags": det.get("tags", []),
+        "risk_item_refs": det.get("risk_item_refs", []),
         "dedup_key": {
             "asset_id": dedup_key["asset_id"],
             "indicator": dedup_key["indicator"],
@@ -209,7 +296,23 @@ async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:
     # Generate tasks
     await _generate_playbook_tasks(incident_id, severity)
 
+    # --- NEW: send notification ---
+    incident_doc["_id"] = incident_id
+    await send_incident_notification(incident_doc)
+
     return incident_id
+
+async def link_asset_to_incident(incident_id: ObjectId, asset_id: str):
+    await incidents_col.update_one(
+        {"_id": incident_id},
+        {"$addToSet": {"asset_refs": asset_id}}
+    )
+
+async def link_risk_to_incident(incident_id: ObjectId, risk_id: str):
+    await incidents_col.update_one(
+        {"_id": incident_id},
+        {"$addToSet": {"risk_item_refs": risk_id}}
+    )
 
 
 async def attach_detection_to_incident(

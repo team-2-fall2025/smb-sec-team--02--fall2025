@@ -161,7 +161,28 @@ API Endpoint: `http://localhost:8000/run/sop-generate`
 Description: Produces short implementation SOPs for each recommended control, including owners, cadence, evidence requirements, and success criteria.
 
 ---
+## 🚀 Week 6 Backend Instructions
 
+### 1️⃣ Add Detection Test Data
+
+Insert the following document into the **`detections`** collection:
+
+```json
+{
+  "severity": "P2",
+  "asset_id": "server-01",
+  "indicator": "10.1.1.5",
+  "source": "ids",
+  "title": "Unauthorized login attempt"
+}
+```
+### 2️⃣ Run Respond Agent
+
+Trigger incident creation by calling:
+
+http://127.0.0.1:8000/api/respond/run
+
+------------------------------
 
 
 ## 💡 Notes
