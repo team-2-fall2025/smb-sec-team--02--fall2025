@@ -110,6 +110,13 @@ Incident: 693235f9cf2ab487eda84a71
 Eradication -> Eradication
 ```
 
+```bash
+setup_db_week6.py 1) Data model
+run_respond_agent in respond.py 2) Respond / Playbook Agent (MVP)
+change_incident_status in repond.py 3) State machine & SLA
+```
+
+
 ## 🧪 API Test Endpoints
 
 | Function | Method | Test URL |
