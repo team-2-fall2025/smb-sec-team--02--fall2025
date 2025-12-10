@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Header
 from scripts.setup_db_week7 import ensure_recover_indexes, seed_recover_data, get_db
 from pymongo import MongoClient
-from agents.recover_agent import BackupReportIn, report_backup_intake, get_backup_reports_by_asset_id
+from agents.recover_agent import get_backup_reports_by_asset_id
 
 router = APIRouter(prefix="/api/recover", tags=["recover"])
 
@@ -30,14 +30,6 @@ def create_recover_tables():
         "status": "success",
         "message": "Week 7 Recover / Resilience collections created and seeded"
     }
-
-# @router.post("/report")
-# def report_backup(
-#     payload: BackupReportIn,
-#     x_reported_by: Optional[str] = Header(default=None, alias="X-Reported-By"),
-# ):
-#     db = get_db()
-#     return report_backup_intake(db, payload, header_reported_by=x_reported_by)
 
 @router.get("/report/{asset_id}")
 def get_backup_reports(asset_id: str):
