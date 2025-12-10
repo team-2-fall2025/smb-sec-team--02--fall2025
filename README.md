@@ -99,13 +99,23 @@ The Detect Agent processes raw OSINT into prioritized detections.
 POST http://localhost:8000/api/detect/run
 ```
 
-## Protect Agent
-
-Generate recommended controls and SOPs:
+## Respond agent
+Create and initialize tables
+```bash
+http://127.0.0.1:8000/api/respond/create
+```
+For Transition validator enforces (Example)
+```bash
+Incident: 693235f9cf2ab487eda84a71
+Eradication -> Eradication
+```
 
 ```bash
-POST http://localhost:8000/api/protect/run
+setup_db_week6.py 1) Data model
+run_respond_agent in respond.py 2) Respond / Playbook Agent (MVP)
+change_incident_status in repond.py 3) State machine & SLA
 ```
+
 
 ## 🧪 API Test Endpoints
 
@@ -142,8 +152,43 @@ POST http://localhost:8000/api/protect/run
 
 ---
 
+### 3. CSF → 800-53 Mapping & Coverage Metrics
+API Endpoint: `http://localhost:8000/run/csf-metrics`  
+Description: Generates CSF function/category/subcategory mappings and computes 800-53 coverage metrics across all controls.
+
+### 4. SOP Generator
+API Endpoint: `http://localhost:8000/run/sop-generate`  
+Description: Produces short implementation SOPs for each recommended control, including owners, cadence, evidence requirements, and success criteria.
+
+---
+## 🚀 Week 6 Backend Instructions
+
+### 1️⃣ Add Detection Test Data
+
+Insert the following document into the **`detections`** collection:
+
+```json
+{
+  "severity": "P2",
+  "asset_id": "server-01",
+  "indicator": "10.1.1.5",
+  "source": "ids",
+  "title": "Unauthorized login attempt"
+}
+```
+### 2️⃣ Run Respond Agent
+
+Trigger incident creation by calling:
+
+http://127.0.0.1:8000/api/respond/run
+
+------------------------------
+
+
 ## 💡 Notes
 - If you encounter a connection error, ensure the MongoDB service is running correctly.  
 - If you change the database name or port, make sure to update your project configuration file (such as `.env` or `config.js`).
 
 ---
+
+

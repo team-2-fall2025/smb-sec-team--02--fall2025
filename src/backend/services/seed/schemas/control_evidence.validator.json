@@ -1,0 +1,14 @@
+{
+  "bsonType": "object",
+  "required": ["control_id", "evidence_type", "location", "submitted_by", "submitted_at", "created_at"],
+  "properties": {
+    "control_id": { "bsonType": "string" },
+    "asset_id": { "bsonType": ["objectId", "null"] },
+    "evidence_type": { "enum": ["screenshot", "config", "log_extract", "report", "ticket"] },
+    "location": { "bsonType": "string", "description": "URL or object key (e.g., /evidence/<uuid>)" },
+    "hash": { "bsonType": ["string", "null"] },
+    "submitted_by": { "bsonType": "string" },
+    "submitted_at": { "bsonType": "date" },
+    "created_at": { "bsonType": "date" }
+  }
+}
