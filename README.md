@@ -117,13 +117,20 @@ change_incident_status in repond.py 3) State machine & SLA
 ```
 
 ## Recover agent
-Create and initialize tables
+(1) Create and initialize tables -> 
+create_recover_tables in recover.py
 ```bash
 http://127.0.0.1:8000/api/recover/create
 ```
-Output report from table backup_sets
+(2) Output report from table backup_sets -> 
+get_backup_reports in recover.py
 ```bash
 http://127.0.0.1:8000/api/recover/report/{asset_id}
+```
+(3) Output report from table restore_tests -> 
+get_restore_tests in recover.py
+```bash
+http://127.0.0.1:8000/api/recover/test/{asset_id}
 ```
 
 ## 🧪 API Test Endpoints
