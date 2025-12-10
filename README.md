@@ -116,6 +116,15 @@ run_respond_agent in respond.py 2) Respond / Playbook Agent (MVP)
 change_incident_status in repond.py 3) State machine & SLA
 ```
 
+## Recover agent
+Create and initialize tables
+```bash
+http://127.0.0.1:8000/api/recover/create
+```
+Output report from table backup_sets
+```bash
+http://127.0.0.1:8000/api/recover/report/{asset_id}
+```
 
 ## 🧪 API Test Endpoints
 
