@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import List, Literal, Optional, Union
 from bson import ObjectId
+from bson.errors import InvalidId
 from pydantic import BaseModel, Field, validator
 from pymongo.database import Database
 
