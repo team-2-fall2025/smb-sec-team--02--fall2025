@@ -103,7 +103,7 @@ async def change_incident_status(
         raise HTTPException(status_code=400, detail="Invalid incident id")
 
     try:
-        updated = await update_incident_status(oid, body.status, body.actor)
+        await update_incident_status(oid, body.status, body.actor)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -239,7 +239,7 @@ async def add_task(incident_id: str, task: dict):
     }
     
     # Insert
-    taskdoc = await db.incident_tasks.insert_one(task_doc)
+    await db.incident_tasks.insert_one(task_doc)
     
     # Log to timeline
     await db.incident_timeline.insert_one({
