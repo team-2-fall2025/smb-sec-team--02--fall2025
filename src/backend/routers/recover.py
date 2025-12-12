@@ -8,7 +8,6 @@ from agents.recover_agent import get_backup_reports_by_asset_id
 from agents.recover_agent import get_restore_tests_by_asset_id
 from bson import ObjectId
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime, timezone, timedelta
 
 
