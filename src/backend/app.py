@@ -1,4 +1,4 @@
-
+import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from agents.identify_agent import generate_asset_intel_links
@@ -7,6 +7,12 @@ from routers import assets
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern, sops, csf
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import asyncio
+from services.scheduler_job import scheduler_loop
+from db.mongo import db
+from observability.logging_setup import setup_logging
+from middleware.request_id import RequestIdMiddleware
+from middleware.access_log import AccessLogMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
@@ -76,6 +82,26 @@ app.include_router(respond.router)
 app.include_router(recover.router)
 app.include_router(govern.router)
 
+origins_env = os.getenv("CORS_ORIGINS", "")
+allowed_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,     # DO NOT use ["*"] for Week 9
+    allow_credentials=True,            # if cookies or auth headers
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
+    expose_headers=["X-Request-ID"],   # optional if you add request IDs later
+)
+
+@app.on_event("startup")
+async def start_scheduler():
+    asyncio.create_task(scheduler_loop(db))
+
+setup_logging()
+
+app.add_middleware(RequestIdMiddleware)
+app.add_middleware(AccessLogMiddleware)
 
 if __name__ == "__main__":
     import uvicorn

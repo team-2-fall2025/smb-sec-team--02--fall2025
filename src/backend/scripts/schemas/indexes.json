@@ -1,0 +1,14 @@
+{
+  "assets": [
+    { "keys": [["asset_id", 1]], "options": { "unique": true, "name": "ux_asset_id" } },
+    { "keys": [["created_at", -1]], "options": { "name": "ix_assets_created_at" } }
+  ],
+  "restore_tests": [
+    { "keys": [["asset_id", 1], ["test_started_at", -1]], "options": { "name": "ix_restore_asset_started" } },
+    { "keys": [["test_started_at", -1]], "options": { "name": "ix_restore_started" } }
+  ],
+  "incidents": [
+    { "keys": [["status", 1], ["created_at", -1]], "options": { "name": "ix_inc_status_created" } },
+    { "keys": [["owner", 1], ["created_at", -1]], "options": { "name": "ix_inc_owner_created" } }
+  ]
+}

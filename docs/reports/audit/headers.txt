@@ -1,0 +1,12 @@
+﻿
+Key           Value                              
+---           -----                              
+Vary          Origin                             
+Connection    keep-alive                         
+Keep-Alive    timeout=5                          
+Cache-Control no-cache                           
+Content-Type  text/html                          
+Date          Fri, 12 Dec 2025 02:07:04 GMT      
+ETag          W/"2e0-t0RqIwSnRO8KpgBxAOiRsEjmX4g"
+
+
