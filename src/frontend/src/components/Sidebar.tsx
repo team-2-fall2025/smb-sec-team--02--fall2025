@@ -50,7 +50,7 @@ export function Sidebar() {
             <i className="bi bi-lightbulb me-2"></i> Intel Events
           </NavLink>
         </li>
-        <li className="nav-item mb-2">
+        {/* <li className="nav-item mb-2">
           <NavLink
             to="/risk"
             className={({ isActive }) =>
@@ -63,7 +63,7 @@ export function Sidebar() {
           >
             <i className="bi bi-exclamation-triangle me-2"></i> Risk Items
           </NavLink>
-        </li>
+        </li> */}
         <li className="nav-item mb-2">
           <NavLink
             to="/detections"
@@ -90,6 +90,20 @@ export function Sidebar() {
             }
           >
             <i className="bi bi-shield-fill"></i> Controls
+          </NavLink>
+        </li>
+        <li className="nav-item mb-2">
+          <NavLink
+            to="/incidents"
+            className={({ isActive }) =>
+              `nav-link px-3 py-2 border-start ${
+                isActive
+                    ? "border-3 border-primary text-dark bg-light fw-semibold"
+                    : "border-0 text-white hover:text-light"
+                }`
+            }
+          >
+            <i className="bi bi-broadcast"></i> Incidents
           </NavLink>
         </li>
       </ul>

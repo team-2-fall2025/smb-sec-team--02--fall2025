@@ -15,5 +15,7 @@ export interface Detection {
   hit_count: number;
   analyst_note: string;
   raw_ref: Record<string, any>;
+  name?: string;
+  description?: string;
 }
 

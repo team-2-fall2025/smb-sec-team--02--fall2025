@@ -15,6 +15,7 @@ MongoDB setup + seed script for Week 6 Respond / Incident feature.
 
 import os
 from datetime import datetime, timedelta
+import random
 
 from pymongo import MongoClient, ASCENDING
 from bson import ObjectId
@@ -228,7 +229,7 @@ def seed_respond_sample_data(db):
     # -------- Sample Incident 2: P3 Suspicious login --------
     inc2_id = ObjectId()
     inc2_opened = now - timedelta(days=1)
-    inc2_sla_due = inc2_opened + timedelta(hours=24)
+    inc2_sla_due = inc2_opened + timedelta(days=random.random * 24)
 
     inc2 = {
         "_id": inc2_id,

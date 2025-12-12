@@ -1,7 +1,9 @@
 
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from agents.identify_agent import generate_asset_intel_links
+from agents.identify_agent import fetch_pulses, generate_asset_intel_links
+from agents.osint.otx_client import otx_intel_events
+from agents.DS_agent import query_deepseek
 from db.init_db import init_indexes
 from routers import assets
 from routers import stats, osint, seed, identify, protect, detect, respond, recover, govern, sops, csf
@@ -51,6 +53,11 @@ def health():
 def version():
     return {"version": "Week2-Skeleton"}
 
+@app.get("/t")
+async def t():
+    # query_deepseek("on a scale of 1 to 5, how severe is the threat described as: (only return the number)" + ".net exploit kit is a sophisticated malware framework used by cybercriminals to deliver various types of malicious payloads to victims through drive-by download attacks.")
+    # return otx_intel_events("103.235.46.102")
+    await fetch_pulses()
 
 
 @app.get("/run/sop-generate")

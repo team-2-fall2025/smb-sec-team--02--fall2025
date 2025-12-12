@@ -1,6 +1,6 @@
 # routers/identify.py
 from fastapi import APIRouter
-from agents.identify_agent import generate_asset_intel_links, infere_asset_fields
+from agents.identify_agent import fetch_pulses, generate_asset_intel_links, infere_asset_fields
 
 router = APIRouter(prefix="/api/identify", tags=["identify"])
 
@@ -13,6 +13,7 @@ async def ping():
 @router.post("/run")
 async def run_identify():
     classified_count = await infere_asset_fields()
+    await fetch_pulses()
     linked_count = await generate_asset_intel_links()
     print(" Identify agent run complete.")
     result = {
