@@ -116,6 +116,22 @@ run_respond_agent in respond.py 2) Respond / Playbook Agent (MVP)
 change_incident_status in repond.py 3) State machine & SLA
 ```
 
+## Recover agent
+(1) Create and initialize tables -> 
+create_recover_tables in recover.py
+```bash
+http://127.0.0.1:8000/api/recover/create
+```
+(2) Output report from table backup_sets -> 
+get_backup_reports in recover.py
+```bash
+http://127.0.0.1:8000/api/recover/report/{asset_id}
+```
+(3) Output report from table restore_tests -> 
+get_restore_tests in recover.py
+```bash
+http://127.0.0.1:8000/api/recover/test/{asset_id}
+```
 
 ## 🧪 API Test Endpoints
 
@@ -183,6 +199,48 @@ Trigger incident creation by calling:
 http://127.0.0.1:8000/api/respond/run
 
 ------------------------------
+
+## 🚀 Week 7 Backend Instructions
+Insert the backup data
+
+### Step 3 Run Function 
+http://localhost:8000/docs
+```json
+{
+  "asset_id": "12",
+  "backup_type": "snapshot",
+  "storage_location": "s3://bucket/web01.bak",
+  "encrypted": true,
+  "frequency_minutes": 1440,
+  "rpo_target_minutes": 1440,
+  "status": "success",
+  "finished_at": "2025-11-01T02:10:00Z",
+  "size_bytes": 4096000,
+  "checksum": "sha256:abcd1234"
+}
+```
+
+### Step 4 Run Function 
+http://localhost:8000/docs
+
+Insert the restore test
+```json 
+{
+  "asset_id": "12",
+  "backup_set_id": "3",
+  "test_started_at": "2025-11-08T15:00:00Z",
+  "test_completed_at": "2025-11-08T15:17:00Z",
+  "result": "pass",
+  "logs_location": "/logs/test1.txt",
+  "rto_target_minutes": 20,
+  "notes": "OK"
+}
+```
+
+### Step 5 Run Function Risk recalculation & findings update
+
+http://localhost:9000/api/recover/run 
+
 
 
 ## 💡 Notes

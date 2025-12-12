@@ -6,14 +6,14 @@ from db.mongo import db  # this should be your AsyncIOMotorDatabase
 
 import requests
 
-SLACK_WEBHOOK_URL = "XXXX"  # 你的 webhook
+SLACK_WEBHOOK_URL = "XXXXX"  # 你的 webhook
 
 
 
 incident_evidence_col = db["incident_evidence"]
 
 
-async def add_incident_evidence(incident_id: ObjectId, payload: Dict[str, Any]):
+async def add_incident_evidence(incident_id: ObjectId, payload: Dict[str, Any]):      # step 5
     """
     Add metadata-only evidence entry.
     File upload is optional; metadata is required.
@@ -56,7 +56,7 @@ async def add_incident_evidence(incident_id: ObjectId, payload: Dict[str, Any]):
 
 
 
-async def send_incident_notification(incident: Dict[str, Any]):
+async def send_incident_notification(incident: Dict[str, Any]):     # step 4
     """
     Send Slack/Webhook alert and log a comms event to the timeline.
     """
@@ -232,7 +232,7 @@ async def _generate_playbook_tasks(incident_id: ObjectId, severity: str) -> None
 # --------- Incident creation / attachment ---------
 
 
-async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:
+async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:    # step 6
     """
     Create a new incident document from a detection.
     """
@@ -315,7 +315,7 @@ async def link_risk_to_incident(incident_id: ObjectId, risk_id: str):
     )
 
 
-async def attach_detection_to_incident(
+async def attach_detection_to_incident(   # step 6
     incident: Dict[str, Any],
     det: Dict[str, Any],
 ) -> None:
