@@ -6,10 +6,10 @@ A security-focused web application for small-medium businesses, providing robust
 ## Team Roster & Roles
 | Name              | Email                     | Role(s)                        |
 |-------------------|---------------------------|--------------------------------|
-| Ramzey Alissa     | rag9w@umsystem.edu        | Team Lead / risk & compliance  |
-| Weikang Ding      | dingweik@msu.edu          | risk & compliance              |
-| Binhao Ma         | 1145183478@qq.com         | Frontend / Backend             |
-| Immanuel Olaoye   | olaoye939@gmail.com       | Frontend / Backend             |
+| Ramzey Alissa     | rag9w@umsystem.edu        | Team Lead / Frontend           |
+| Weikang Ding      | dingweik@msu.edu          | Backend                        |
+| Binhao Ma         | 1145183478@qq.com         | Backend                        |
+| Immanuel Olaoye   | olaoye939@gmail.com       | Test                           |
 
 ## Quickstart for Backend & Frontend (Local Run)
 
