@@ -29,7 +29,6 @@ async def run_detect():
     - Return summary
     """
     window_hours = 24 * TIME_MULTIPLIER
-    print ("TIME_MULTIPLIER:", TIME_MULTIPLIER)
     cutoff = datetime.utcnow() - timedelta(hours=window_hours)
 
     # 1. Get recent intel
@@ -82,7 +81,6 @@ async def run_detect():
             result = await db.detections.insert_one(detection_dict)
             detection_dict["_id"] = result.inserted_id
             summary["new_detections"] += 1
-            print("at new detection:", detection_dict)
             await create_or_update_risk_item(detection_dict)
             summary["risk_items_opened"] += 1  # Even if upsert, count as "handled"
             # Send alert only on NEW qualifying detection

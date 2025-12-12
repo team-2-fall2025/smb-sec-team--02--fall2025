@@ -13,6 +13,8 @@ import { DetectionList } from './pages/Detection/DetectionList'
 import { DetectionViewPage } from './pages/Detection/DetectionViewPage'
 import { ControlsList } from './pages/Protection/ControlsList'
 import { ControlDetailPage } from './pages/Protection/ControlDetailPage'
+import { Incidents } from './pages/Incident/Incidents'
+import { IncidentDetailPage } from './pages/Incident/IncidentDetailPage'
 
 function App() {
   return (
@@ -30,6 +32,10 @@ function App() {
         <Route path="/detection/:id" element={<DetectionViewPage />} />
         <Route path="/controls" element={<ControlsList />} />
         <Route path="/controls/:control_id" element={<ControlDetailPage />} />
+        <Route path="/incidents" element={<Incidents />} />
+        <Route path="/incidents/:incident_id" element={<IncidentDetailPage />} />
+
+
       </Routes>
     </Layout>
   )

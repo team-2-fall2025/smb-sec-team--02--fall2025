@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
-
+import os
+from dotenv import load_dotenv
 from bson import ObjectId
 from db.mongo import db  # this should be your AsyncIOMotorDatabase
 
 import requests
 
-SLACK_WEBHOOK_URL = "XXXXX"  # 你的 webhook
+load_dotenv()
+# 你的 webhook
+
 
 
 
@@ -54,7 +57,7 @@ async def add_incident_evidence(incident_id: ObjectId, payload: Dict[str, Any]):
 
     return result.inserted_id
 
-
+TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL")
 
 async def send_incident_notification(incident: Dict[str, Any]):     # step 4
     """
@@ -69,7 +72,7 @@ async def send_incident_notification(incident: Dict[str, Any]):     # step 4
 
     # Send Slack message
     try:
-        requests.post(SLACK_WEBHOOK_URL, json={"text": message})
+        requests.post(TEAMS_WEBHOOK_URL, json={"text": message})
     except Exception as e:
         print("Slack send failed:", e)
 
@@ -248,7 +251,11 @@ async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:    # 
         or det.get("summary")
         or f"Auto incident for detection {str(det.get('_id'))}"
     )
-
+    asset = {
+        "owner": "Unknown",
+    }
+    if det.get("asset_id"):
+        asset = await db.assets.find_one({"_id": det.get("asset_id")})
     incident_doc: Dict[str, Any] = {
         "asset_refs": [det.get("asset_id")] if det.get("asset_id") else [],
 
@@ -258,7 +265,8 @@ async def create_incident_from_detection(det: Dict[str, Any]) -> ObjectId:    # 
         "opened_at": now,
         "updated_at": now,
         "closed_at": None,
-        "owner": None,
+        "owner": asset.get("owner"),
+        "asset_name": asset.get("name"),
         "sla_due_at": sla_due_at,
         "sla_status": sla_status,
         "primary_asset_id": det.get("asset_id"),
@@ -406,6 +414,7 @@ async def update_incident_status(
     actor: str | None = None,
 ) -> Dict[str, Any]:
     incident = await incidents_col.find_one({"_id": incident_id})
+    incident["_id"] = str(incident["_id"])
     if not incident:
         raise ValueError("Incident not found")
 
@@ -460,4 +469,6 @@ async def update_incident_status(
     )
 
     updated = await incidents_col.find_one({"_id": incident_id})
+    print("Updated incident status:", updated)
+    updated["_id"] = str(updated["_id"])
     return updated
