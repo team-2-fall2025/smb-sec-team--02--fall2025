@@ -5,7 +5,5 @@ import pytest
 # # Create a TestClient instance
 # client = TestClient(app)
 
-@pytest.mark.asyncio
-async def test_health_endpoint():
-    l = True
-    assert l == True
+def test_addition():
+    assert 1 + 1 == 2
